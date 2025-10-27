@@ -12,8 +12,9 @@ export const createPost = async () => {
       appDisplayName: 'DigitRush',
       backgroundUri: 'default-splash.png',
       buttonLabel: 'Tap to Start',
-      description: 'Test your math skills in 60 seconds!',
-      entryUri: 'index.html',
+  description: 'Test your math skills in 30 seconds!',
+  // 'entry' is the expected property name for the web entry path
+  entry: 'index.html',Make Kiro experts ask, “Why didn’t I think of that?” We’re looking for creative solutions that significantly improved your development. Think: clever automations, efficiency gains, reduction of cognitive load. Bonus points for solutions others can adopt
       heading: 'DigitRush - Math Quiz Challenge',
       appIconUri: 'default-icon.png',
     },

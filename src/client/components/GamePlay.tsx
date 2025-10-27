@@ -38,6 +38,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     if (game.currentProblem && game.currentProblem.id !== lastProblemId) {
       setIsSubmitting(false);
       setLastProblemId(game.currentProblem.id);
+      // Clear previous answer when a new problem arrives
+      setUserAnswer('');
       // try to focus; wrap in a small timeout so focus happens after DOM paint
       setTimeout(() => focusInput(), 50);
     }
@@ -75,8 +77,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
       message: isCorrect ? '✅ Correct!' : `❌ Wrong! Answer was ${game.currentProblem.answer}`,
     });
 
-    // Clear the input
-    setUserAnswer('');
+  // keep the input value (previous answer) visible while submitting;
+  // it will be cleared when the next problem arrives
 
     // Submit answer - input will be re-enabled when new problem arrives
     await game.submitAnswer(answer);
@@ -88,8 +90,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     }
   };
 
-  // Progress bar percentage
-  const progressPercentage = (game.timeRemaining / 60) * 100;
+  // Progress bar percentage (updated to 30s game length)
+  const progressPercentage = (game.timeRemaining / 30) * 100;
 
   if (!game.currentProblem) {
     return (
@@ -156,7 +158,14 @@ export const GamePlay = ({ game }: GamePlayProps) => {
                 onKeyDown={handleKeyDown}
                 placeholder={isSubmitting ? 'Loading...' : 'Your answer...'}
                 disabled={isSubmitting}
-                className="font-mono px-4 py-3 text-2xl text-center bg-gray-700 border-2 border-gray-600 text-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none disabled:bg-gray-600 disabled:cursor-not-allowed placeholder-gray-400 w-full sm:w-3/4 md:w-1/2 lg:w-[420px]"
+                className={`font-mono px-4 py-3 text-2xl text-center rounded-lg focus:outline-none placeholder-gray-400 w-full sm:w-3/4 md:w-1/2 lg:w-[420px] transition-colors duration-200 ${
+                  feedback.type === 'correct'
+                    ? 'bg-green-900/30 border-2 border-green-400 text-green-200 focus:border-green-400'
+                    : feedback.type === 'incorrect'
+                    ? 'bg-red-900/30 border-2 border-red-400 text-red-200 focus:border-red-400'
+                    : 'bg-gray-700 border-2 border-gray-600 text-gray-200 focus:border-indigo-500'
+                } disabled:opacity-75 disabled:cursor-not-allowed`}
+                aria-invalid={feedback.type === 'incorrect'}
                 autoComplete="off"
               />
               <button
@@ -168,19 +177,6 @@ export const GamePlay = ({ game }: GamePlayProps) => {
               </button>
             </div>
           </form>
-
-          {/* Feedback */}
-          {feedback.type && (
-            <div
-              className={`text-center p-3 rounded-lg mb-4 ${
-                feedback.type === 'correct'
-                  ? 'bg-green-900/40 border border-green-700 text-green-200'
-                  : 'bg-red-900/40 border border-red-700 text-red-200'
-              }`}
-            >
-              <p className="font-medium">{feedback.message}</p>
-            </div>
-          )}
 
           {/* Instructions */}
           <div className="text-center text-sm text-gray-400">

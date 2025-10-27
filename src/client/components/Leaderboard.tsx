@@ -34,10 +34,13 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
   };
 
   return (
-    <div className={compact ? '' : 'bg-gray-800 p-6 w-full'}>
+    <div className={compact ? 'w-full' : 'bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-4 sm:p-6 w-full shadow-lg'}>
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-200">🏆 Leaderboard</h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#86f6b1]">🏆 Leaderboard</h2>
+        {!compact && (
+          <span className="text-sm text-gray-400 hidden sm:inline">Live • Updated</span>
+        )}
       </div>
 
         {loading ? (
@@ -49,36 +52,39 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
           <>
             {/* Current User Stats */}
             {leaderboard.userRank && leaderboard.userScore !== null && (
-              <div className="bg-indigo-900/40 border border-indigo-700/50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-indigo-200 mb-1">Your Ranking</p>
+              <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4 mb-4">
+                <p className="text-sm text-[#86f6b1] mb-1">Your Ranking</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-indigo-300">
-                    Rank #{leaderboard.userRank}
-                  </span>
-                  <span className="text-lg font-bold text-indigo-300">
-                    {leaderboard.userScore} points
-                  </span>
+                  <span className="text-lg font-bold text-[#86f6b1]">Rank #{leaderboard.userRank}</span>
+                  <span className="text-lg font-bold text-[#86f6b1]">{leaderboard.userScore} points</span>
                 </div>
               </div>
             )}
 
             {/* Leaderboard List */}
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-80 overflow-auto">
               {leaderboard.entries.map((entry: LeaderboardEntry) => (
                 <div
                   key={entry.username}
                   className={`flex items-center justify-between p-3 rounded-lg ${
-                    entry.rank <= 3
-                      ? 'bg-yellow-900/30 border border-yellow-700/50'
-                      : 'bg-gray-700 border border-gray-600'
+                    // Use a neutral fill for all rows; color the border for top 3 only
+                    entry.rank === 1
+                      ? 'bg-white/6 border border-[#ffd166]'
+                      : entry.rank <= 3
+                      ? 'bg-white/6 border border-yellow-500'
+                      : 'bg-white/6 border border-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-bold w-8">
-                      {getMedalEmoji(entry.rank)}
-                    </span>
+                    <span className="text-xl font-bold w-8 text-gray-800">{getMedalEmoji(entry.rank)}</span>
                     <div>
-                      <p className="font-semibold text-gray-200">{entry.username}</p>
+                      <p className={`font-semibold ${
+                        entry.rank === 1
+                          ? 'text-[#ffd166]'
+                          : entry.rank <= 3
+                          ? 'text-yellow-200'
+                          : 'text-gray-200'
+                      }`}>{entry.username}</p>
                       {entry.rank <= 3 && (
                         <p className="text-xs text-gray-400">
                           {entry.rank === 1 ? 'Champion' : entry.rank === 2 ? 'Runner-up' : 'Third Place'}
@@ -86,9 +92,15 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-indigo-400">{entry.score}</p>
-                    <p className="text-xs text-gray-400">points</p>
+                  <div className="text-right flex flex-col items-end">
+                    <span className={`${
+                      entry.rank === 1
+                        ? 'bg-[#ffd166]'
+                        : entry.rank <= 3
+                        ? 'bg-yellow-500'
+                        : 'bg-[#86f6b1]'
+                    } inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold text-white`}>{entry.score}</span>
+                    <p className="text-xs text-gray-400 mt-1">points</p>
                   </div>
                 </div>
               ))}
@@ -100,6 +112,6 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
             <p className="text-sm text-gray-400">Be the first to play and set a score.</p>
           </div>
         )}
-      </div>
+    </div>
   );
 };

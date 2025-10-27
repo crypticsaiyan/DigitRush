@@ -25,6 +25,9 @@ app.use(express.text());
 
 const router = express.Router();
 
+// Game duration (milliseconds) - keep in sync with client default
+const GAME_DURATION_MS = 30000; // 30 seconds
+
 // Helper functions for Redis game state
 async function saveGameState(
   gameId: string,
@@ -307,8 +310,8 @@ router.post<
       return;
     }
 
-    const timeElapsed = Date.now() - gameState.startTime;
-    const timeRemaining = Math.max(0, 60000 - timeElapsed); // 60 seconds
+  const timeElapsed = Date.now() - gameState.startTime;
+  const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
     console.log('Time remaining:', timeRemaining);
 
     if (timeRemaining <= 0) {
@@ -412,16 +415,26 @@ router.post<
       await redis.set(highScoreKey, finalScore.toString());
     }
 
-    // Save to leaderboard using sorted set
+    // Save to leaderboard using sorted set, but only if this is the user's best score
     const username = await reddit.getCurrentUsername();
     if (username && finalScore > 0) {
       const leaderboardSetKey = `leaderboard_set:${postId}`;
-      console.log('Saving to leaderboard:', { username, finalScore, key: leaderboardSetKey });
-      
-      // Use username as member, score as the sort value
-      // This will automatically update if the user plays again
-      await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
-      console.log('Score saved to leaderboard');
+      console.log('Considering saving to leaderboard:', { username, finalScore, key: leaderboardSetKey });
+
+      try {
+        // Check existing score for this user
+        const existingScore = await redis.zScore(leaderboardSetKey, username);
+
+  // If no existing score or this score is higher, update the sorted set
+  if (existingScore == null || finalScore > existingScore) {
+          await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
+          console.log('Score saved to leaderboard (new high or first entry)');
+        } else {
+          console.log('Not saving to leaderboard; existing score is higher or equal', { existingScore });
+        }
+      } catch (err) {
+        console.error('Failed to update leaderboard:', err);
+      }
     }
 
     res.json({
