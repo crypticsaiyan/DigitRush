@@ -107,7 +107,7 @@ function generateMathProblem(): MathProblem {
 
   // Generate a unique ID using timestamp and random number
   const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substr(2, 5);
+  const randomPart = Math.random().toString(36).substring(2, 7);
 
   return {
     id: `${timestamp}_${randomPart}`,

@@ -1,124 +1,192 @@
+import { useState, useEffect } from 'react';
+import { Leaderboard } from './Leaderboard';
+
 interface StartPageProps {
   onStart: () => void;
-  username: string | null;
 }
 
-export const StartPage = ({ onStart, username }: StartPageProps) => {
+export const StartPage = ({ onStart }: StartPageProps) => {
+  const [showHow, setShowHow] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  // Prevent background page from scrolling while modal is open
+  useEffect(() => {
+    // Lock body scroll if any modal is open
+    if (showHow || showLeaderboard) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev || '';
+      };
+    }
+    return;
+  }, [showHow, showLeaderboard]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
-        {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center transform hover:scale-105 transition-transform duration-300">
-          {/* Game Icon/Logo */}
-          <div className="mb-6">
-            <div className="inline-block bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full p-6 mb-4 animate-bounce">
-              <span className="text-6xl">🧮</span>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
+      {/* Subtle background shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -left-32 -top-24 w-96 h-96 bg-gradient-to-tr from-[#0b3b2a] to-[#06383b] opacity-30 rounded-full blur-3xl transform rotate-12" />
+        <div className="absolute -right-32 -bottom-24 w-80 h-80 bg-gradient-to-bl from-[#1a1a2e] to-[#40235a] opacity-20 rounded-full blur-3xl" />
+      </div>
+
+      <main className="relative z-10 w-full max-w-3xl mx-auto">
+        <div className="flex justify-end mb-6">
+          {/* Compact leaderboard card so trophy doesn't float alone */}
+          <button
+            aria-label="Open leaderboard"
+            onClick={() => setShowLeaderboard(true)}
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-white/6 to-white/4 hover:from-white/8 hover:to-white/6 text-white/95 px-3 py-2 rounded-xl transition transform hover:scale-105 shadow-sm"
+            title="Leaderboard"
+          >
+            <div className="flex items-center justify-center w-9 h-9 bg-[#ffd166] text-black rounded-lg text-lg">
+              🏆
+            </div>
+
+            <div className="hidden sm:flex flex-col leading-tight text-left">
+              <span className="text-2xl text-white/90 font-semibold">Leaderboard</span>
+              <span className="text-xl text-white/60">Top score: —</span>
+            </div>
+
+            {/* chevron */}
+            <svg
+              className="w-4 h-4 text-white/80 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <section className="bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-8 md:p-12 shadow-lg">
+          <div className="flex flex-col md:flex-row items-center gap-10">
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="font-heading text-4xl md:text-5xl font-extrabold mb-6 text-[#86f6b1]">
+                DigitRush
+              </h1>
+              <p className="mt-4 text-gray-200 text-lg max-w-2xl font-body">
+                Train your mental math, race the clock, and climb the leaderboard. Quick rounds —
+                big fun. Ready to beat your high score?
+              </p>
+
+              <div className="mt-6 flex flex-col items-center md:items-start gap-3">
+                <button
+                  onClick={onStart}
+                  className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-black font-bold px-6 py-3 rounded-lg text-xs transition-transform transform hover:scale-105 shadow-md"
+                >
+                  <span>Start Playing</span>
+                </button>
+
+                <button
+                  onClick={() => setShowHow(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/6 hover:bg-white/10 text-white text-2xl transition"
+                >
+                  How to play?
+                </button>
+              </div>
             </div>
           </div>
+          {/* Modal popup rendered at root of section */}
+          {showHow && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center px-4"
+              role="dialog"
+              aria-modal="true"
+              onClick={() => setShowHow(false)}
+            >
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                <div
+                  className="relative z-10 max-w-2xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                <div className="flex justify-between items-start gap-4 custom">
+                  {/* Use explicit responsive sizes + enforced class to ensure size increases */}
+                  <h3 className="how-title text-3xl semi-bold">How to play</h3>
+                  <button
+                    onClick={() => setShowHow(false)}
+                    aria-label="Close how to play"
+                    className="ml-auto rounded-md p-2 bg-white/6 hover:bg-white/10"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-          {/* Title */}
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            DigitRush
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            Test Your Math Skills in 60 Seconds!
-          </p>
+                <div className="mt-4 text-2xl leading-relaxed">
+                  <ol className="list-decimal list-inside space-y-3">
+                    <li>Solve as many problems as you can while the timer runs.</li>
+                    <li>Correct answers increase your score and streak.</li>
+                    <li>Check the leaderboard and challenge friends.</li>
+                  </ol>
+                </div>
 
-          {/* Welcome Message */}
-          {username && (
-            <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl p-4 mb-8">
-              <p className="text-lg text-indigo-900">
-                Welcome back, <span className="font-bold">{username}</span>! 👋
-              </p>
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowHow(false)}
+                    className="px-5 py-3 rounded-lg bg-[#00bf63] hover:bg-[#00a855] text-black font-semibold text-base"
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
             </div>
           )}
+        </section>
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">⚡</span>
-                <div>
-                  <h3 className="font-bold text-gray-800">Fast-Paced</h3>
-                  <p className="text-sm text-gray-600">60 seconds of action</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">🎯</span>
-                <div>
-                  <h3 className="font-bold text-gray-800">Challenge</h3>
-                  <p className="text-sm text-gray-600">Multiple operations</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">🏆</span>
-                <div>
-                  <h3 className="font-bold text-gray-800">Compete</h3>
-                  <p className="text-sm text-gray-600">Climb the leaderboard</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">📊</span>
-                <div>
-                  <h3 className="font-bold text-gray-800">Track Progress</h3>
-                  <p className="text-sm text-gray-600">Beat your high score</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Game Rules Preview */}
-          <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
-            <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">📋 Quick Rules</h3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
-                <span>Solve as many math problems as you can in 60 seconds</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
-                <span>Addition & Subtraction: 2-digit numbers</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
-                <span>Multiplication: 2-digit × 1-digit</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
-                <span>Division: Simple whole numbers</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Start Button */}
-          <button
-            onClick={onStart}
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-5 px-8 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+        {/* Leaderboard modal */}
+        {showLeaderboard && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setShowLeaderboard(false)}
           >
-            🚀 Start Playing
-          </button>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <div
+              className="relative z-10 max-w-3xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="text-2xl font-semibold">🏆 Leaderboard</h3>
+                <button
+                  onClick={() => setShowLeaderboard(false)}
+                  aria-label="Close leaderboard"
+                  className="ml-4 rounded-md p-2 bg-white/6 hover:bg-white/10"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-          {/* Motivational Text */}
-          <p className="mt-6 text-sm text-gray-500">
-            Ready to challenge your brain? Let's go! 💪
-          </p>
-        </div>
+              <div className="mt-4">
+                <Leaderboard />
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Footer Info */}
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Powered by Reddit Devvit • Built for Math Enthusiasts</p>
-        </div>
-      </div>
+        <footer className="mt-6 text-center text-2xl text-white/70 hidden sm:block">
+          Tip: press <span className="px-3 py-1 bg-white/6 rounded text-sm inline-block">Enter</span> to submit answers.
+        </footer>
+      </main>
     </div>
   );
 };

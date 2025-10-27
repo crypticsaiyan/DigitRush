@@ -9,25 +9,44 @@ export const GamePlay = ({ game }: GamePlayProps) => {
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastProblemId, setLastProblemId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect' | null; message: string }>({
+  const [feedback, setFeedback] = useState<{
+    type: 'correct' | 'incorrect' | null;
+    message: string;
+  }>({
     type: null,
-    message: ''
+    message: '',
   });
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Helper to focus the input safely
+  const focusInput = () => {
+    try {
+      const el = inputRef.current;
+      if (!el) return;
+      el.focus({ preventScroll: false } as FocusOptions);
+      // select to make it obvious on desktop
+      el.select();
+    } catch (e) {
+      // fallback - some environments may not accept options
+      inputRef.current?.focus();
+    }
+  };
+
   // Focus input when component mounts or new problem appears
   useEffect(() => {
-    console.log('Current problem changed:', game.currentProblem);
-    
     // If problem ID changed, we have a new problem - re-enable input
     if (game.currentProblem && game.currentProblem.id !== lastProblemId) {
       setIsSubmitting(false);
       setLastProblemId(game.currentProblem.id);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      // try to focus; wrap in a small timeout so focus happens after DOM paint
+      setTimeout(() => focusInput(), 50);
     }
   }, [game.currentProblem, lastProblemId]);
+
+  // Also focus once on mount (useful when component first renders)
+  useEffect(() => {
+    setTimeout(() => focusInput(), 50);
+  }, []);
 
   // Clear feedback after a short delay
   useEffect(() => {
@@ -41,24 +60,24 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!userAnswer.trim() || !game.currentProblem || isSubmitting) return;
-    
+
     const answer = parseInt(userAnswer);
     if (isNaN(answer)) return;
 
     // Disable input immediately
     setIsSubmitting(true);
-    
+
     const isCorrect = answer === game.currentProblem.answer;
     setFeedback({
       type: isCorrect ? 'correct' : 'incorrect',
-      message: isCorrect ? '✅ Correct!' : `❌ Wrong! Answer was ${game.currentProblem.answer}`
+      message: isCorrect ? '✅ Correct!' : `❌ Wrong! Answer was ${game.currentProblem.answer}`,
     });
 
     // Clear the input
     setUserAnswer('');
-    
+
     // Submit answer - input will be re-enabled when new problem arrives
     await game.submitAnswer(answer);
   };
@@ -74,94 +93,101 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
   if (!game.currentProblem) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading next problem...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading next problem...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
-        {/* Header with score and timer */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="text-center">
-            <p className="text-sm text-gray-600">Score</p>
-            <p className="text-2xl font-bold text-indigo-600">{game.currentScore}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">Time</p>
-            <p className={`text-2xl font-bold ${game.timeRemaining <= 10 ? 'text-red-500' : 'text-green-500'}`}>
-              {game.timeRemaining}s
-            </p>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-          <div 
-            className={`h-2 rounded-full transition-all duration-1000 ${
-              game.timeRemaining <= 10 ? 'bg-red-500' : 'bg-green-500'
-            }`}
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
-        </div>
-
-        {/* Math Problem */}
-        <div className="text-center mb-6">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            {game.currentProblem.question} = ?
-          </h2>
-          
-          {/* Operation type indicator */}
-          <div className="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-            {game.currentProblem.operation.charAt(0).toUpperCase() + game.currentProblem.operation.slice(1)}
-          </div>
-        </div>
-
-        {/* Answer Input */}
-        <form onSubmit={handleSubmit} className="mb-4">
-          <div className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="number"
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isSubmitting ? "Loading..." : "Your answer..."}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-3 text-xl text-center border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-              autoComplete="off"
-            />
-            <button
-              type="submit"
-              disabled={!userAnswer.trim() || isSubmitting}
-              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? '⏳' : '✓'}
-            </button>
-          </div>
-        </form>
-
-        {/* Feedback */}
-        {feedback.type && (
-          <div className={`text-center p-3 rounded-lg mb-4 ${
-            feedback.type === 'correct' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            <p className="font-medium">{feedback.message}</p>
-          </div>
-        )}
-
-        {/* Instructions */}
-        <div className="text-center text-sm text-gray-500">
-          <p>Type your answer and press Enter or click ✓</p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
+      {/* Subtle background shapes to match StartPage */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -left-28 -top-20 w-80 h-80 bg-gradient-to-tr from-[#0b3b2a] to-[#06383b] opacity-25 rounded-full blur-3xl transform rotate-12" />
+        <div className="absolute -right-28 -bottom-20 w-72 h-72 bg-gradient-to-bl from-[#1a1a2e] to-[#40235a] opacity-18 rounded-full blur-3xl" />
       </div>
+
+      <main className="relative z-10 w-full max-w-3xl mx-auto">
+        <section className="bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
+          {/* Header with score, problem and timer centered */}
+          <div className="flex flex-col items-center justify-center mb-6 gap-3 text-center">
+            <div>
+              <p className="font-body text-sm text-gray-400">Score</p>
+              <div className="mt-2 font-mono text-2xl md:text-3xl font-bold text-indigo-400">
+                {game.currentScore}
+              </div>
+            </div>
+
+            <div className="mt-2">
+              <h2 className="font-mono text-2xl md:text-4xl lg:text-5xl font-bold text-gray-200">
+                {game.currentProblem.question} = ?
+              </h2>
+            </div>
+
+            <div className="mt-3">
+              <p className="font-body text-sm text-gray-400">Time</p>
+              <div className={`mt-2 font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}>
+                {game.timeRemaining}s
+              </div>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-3/4 md:w-1/2 lg:w-1/3 mx-auto bg-gray-600 rounded-full h-3 mb-6">
+            <div
+              className={`h-3 rounded-full transition-all duration-500 ${
+                game.timeRemaining <= 10 ? 'bg-red-400' : 'bg-green-400'
+              }`}
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+
+          {/* Answer Input */}
+          <form onSubmit={handleSubmit} className="mb-4">
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center mx-auto w-full md:w-3/4 lg:w-1/2">
+              <input
+                ref={inputRef}
+                type="number"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isSubmitting ? 'Loading...' : 'Your answer...'}
+                disabled={isSubmitting}
+                className="font-mono px-4 py-3 text-2xl text-center bg-gray-700 border-2 border-gray-600 text-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none disabled:bg-gray-600 disabled:cursor-not-allowed placeholder-gray-400 w-full sm:w-3/4 md:w-1/2 lg:w-[420px]"
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                disabled={!userAnswer.trim() || isSubmitting}
+                className="w-full sm:w-auto px-6 py-3 bg-[#00bf63] hover:bg-[#00a855] text-black font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? '⏳' : '✓'}
+              </button>
+            </div>
+          </form>
+
+          {/* Feedback */}
+          {feedback.type && (
+            <div
+              className={`text-center p-3 rounded-lg mb-4 ${
+                feedback.type === 'correct'
+                  ? 'bg-green-900/40 border border-green-700 text-green-200'
+                  : 'bg-red-900/40 border border-red-700 text-red-200'
+              }`}
+            >
+              <p className="font-medium">{feedback.message}</p>
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div className="text-center text-sm text-gray-400">
+            <p className="font-body">Type your answer and press Enter or click ✓</p>
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

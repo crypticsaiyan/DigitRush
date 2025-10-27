@@ -1,17 +1,79 @@
 @import 'tailwindcss';
 
-/* Custom styles for better mobile experience */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Custom font - medodicaregular */
+@font-face {
+  font-family: 'medodicaregular';
+  src: url('./fonts/MedodicaRegular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* Prevent zoom on input focus on iOS */
-input[type="number"] {
+/* Custom font - editundo */
+@font-face {
+  font-family: 'editundo';
+  src: url('./fonts/editundo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom font - FFFFORWA */
+@font-face {
+  font-family: 'fffforwa';
+  src: url('./fonts/FFFFORWA.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom styles for better mobile experience */
+body{
+  font-family: 'medodicaregular', sans-serif;
+  font-weight: 400;
+  font-size: 18px; /* sensible base size to avoid layout overflow on mobile */
+  font-style: normal;
+}
+
+.font-heading {
+  font-family: 'fffforwa';
+}
+.font-body {
+  font-family: 'editundo';
+}
+.font-mono {
+  font-family: 'editundo';
+}
+
+/* Force-sized title for modal when other rules may interfere */
+.how-title {
+  font-size: 2rem !important; /* default */
+}
+
+@media (min-width: 768px) {
+  .how-title {
+    font-size: 2.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .how-title {
+    font-size: 3rem !important;
+  }
+}
+
+/* Prevent zoom on input focus on iOS and remove native number input arrows */
+input[type='number'] {
   font-size: 16px;
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
+}
+
+/* Remove spinner arrows in WebKit browsers (Chrome, Safari, Edge) */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Custom animations */
@@ -42,9 +104,16 @@ input[type="number"] {
     font-size: 2rem;
     line-height: 2.5rem;
   }
-  
+
   .text-5xl {
     font-size: 2.5rem;
     line-height: 3rem;
   }
+}
+
+.gametitle {
+  font-family: 'editundo', sans-serif !important;
+  font-weight: 400;
+  font-size: 2.25rem;
+  font-style: normal;
 }
