@@ -12,7 +12,7 @@ export const GameMenu = ({ game }: GameMenuProps) => {
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
         {/* Game Title */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-indigo-600 mb-2">🧮 Math Quiz</h1>
+          <h1 className="text-4xl font-bold text-indigo-600 mb-2">🧮 DigitRush</h1>
           <p className="text-gray-600">Test your math skills in 60 seconds!</p>
         </div>
 

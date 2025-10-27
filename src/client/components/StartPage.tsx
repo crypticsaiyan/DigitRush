@@ -18,7 +18,7 @@ export const StartPage = ({ onStart, username }: StartPageProps) => {
 
           {/* Title */}
           <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Math Quiz
+            DigitRush
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 mb-8">

@@ -9,12 +9,12 @@ export const createPost = async () => {
   return await reddit.submitCustomPost({
     splash: {
       // Splash Screen Configuration
-      appDisplayName: 'digitduel',
+      appDisplayName: 'DigitRush',
       backgroundUri: 'default-splash.png',
       buttonLabel: 'Tap to Start',
-      description: 'An exciting interactive experience',
+      description: 'Test your math skills in 60 seconds!',
       entryUri: 'index.html',
-      heading: 'Welcome to the Game!',
+      heading: 'DigitRush - Math Quiz Challenge',
       appIconUri: 'default-icon.png',
     },
     postData: {
@@ -22,6 +22,6 @@ export const createPost = async () => {
       score: 0,
     },
     subredditName: subredditName,
-    title: 'digitduel',
+    title: 'DigitRush - Math Quiz Challenge',
   });
 };

@@ -1,4 +1,4 @@
-## Math Quiz Rush - Reddit Game
+## DigitRush - Math Quiz Challenge
 
 A fast-paced math quiz game built on Reddit's Devvit platform where players race against time to solve arithmetic problems and compete for high scores.
 

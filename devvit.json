@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "digitduel",
+  "name": "digitrush",
   "post": {
     "dir": "dist/client",
     "entrypoints": {
@@ -20,7 +20,7 @@
     "items": [
       {
         "label": "Create a new post",
-        "description": "digitduel",
+        "description": "digitrush",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
