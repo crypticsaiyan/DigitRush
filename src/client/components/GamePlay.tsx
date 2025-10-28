@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMathGame } from '../hooks/useMathGame';
+import { GAME_DURATION_SECONDS, LOW_TIME_THRESHOLD } from '../../shared/constants';
 
 interface GamePlayProps {
   game: ReturnType<typeof useMathGame>;
@@ -90,8 +91,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     }
   };
 
-  // Progress bar percentage (updated to 30s game length)
-  const progressPercentage = (game.timeRemaining / 30) * 100;
+  // Progress bar percentage (using game duration from constants)
+  const progressPercentage = (game.timeRemaining / GAME_DURATION_SECONDS) * 100;
 
   if (!game.currentProblem) {
     return (
@@ -109,18 +110,18 @@ export const GamePlay = ({ game }: GamePlayProps) => {
       {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
-  <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
+        <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
           {/* Header with score, problem and timer centered */}
           <div className="flex flex-col items-center justify-center mb-6 gap-3 text-center">
             <div>
               <p className="font-body text-sm text-gray-400">Score</p>
-              <div className="mt-2 font-mono text-2xl md:text-3xl font-bold text-indigo-400">
+              <div className="mt-2 font-mono text-3xl md:text-3xl font-bold text-indigo-400">
                 {game.currentScore}
               </div>
             </div>
 
             <div className="mt-2">
-              <h2 className="font-mono text-2xl md:text-4xl lg:text-5xl font-bold text-gray-200">
+              <h2 className="font-mono text-3xl md:text-4xl lg:text-5xl font-bold text-gray-200">
                 {game.currentProblem.question} = ?
               </h2>
             </div>
@@ -128,7 +129,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
             <div className="mt-3">
               <p className="font-body text-sm text-gray-400">Time</p>
               <div
-                className={`mt-2 font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}
+                className={`mt-2 font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= LOW_TIME_THRESHOLD ? 'text-red-400' : 'text-green-400'}`}
               >
                 {game.timeRemaining}s
               </div>
@@ -139,7 +140,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
           <div className="w-3/4 md:w-1/2 lg:w-1/3 mx-auto bg-gray-600 rounded-full h-3 mb-6">
             <div
               className={`h-3 rounded-full transition-all duration-500 ${
-                game.timeRemaining <= 10 ? 'bg-red-400' : 'bg-green-400'
+                game.timeRemaining <= LOW_TIME_THRESHOLD ? 'bg-red-400' : 'bg-green-400'
               }`}
               style={{ width: `${progressPercentage}%` }}
             />

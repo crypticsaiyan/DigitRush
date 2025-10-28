@@ -6,6 +6,7 @@ import type {
   GameEndResponse,
   MathProblem 
 } from '../../shared/types/api';
+import { GAME_DURATION_SECONDS } from '../../shared/constants';
 
 type GameState = 'start' | 'menu' | 'playing' | 'finished';
 
@@ -27,7 +28,7 @@ export const useMathGame = () => {
     username: null,
     highScore: 0,
     currentScore: 0,
-    timeRemaining: 30,
+    timeRemaining: GAME_DURATION_SECONDS,
     currentProblem: null,
     gameId: null,
     loading: true,
@@ -88,7 +89,7 @@ export const useMathGame = () => {
         currentProblem: data.problem,
         gameId: data.gameId,
         currentScore: 0,
-  timeRemaining: 30,
+        timeRemaining: GAME_DURATION_SECONDS,
         loading: false,
         isNewHighScore: false,
       }));
@@ -227,7 +228,7 @@ export const useMathGame = () => {
       ...prev,
       gameState: 'menu',
       currentScore: 0,
-      timeRemaining: 30,
+      timeRemaining: GAME_DURATION_SECONDS,
       currentProblem: null,
       gameId: null,
       isNewHighScore: false,

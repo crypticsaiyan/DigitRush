@@ -72,7 +72,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               <div className="mt-6 flex flex-col items-center md:items-start gap-3">
                 <button
                   onClick={onStart}
-                  className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-black font-bold px-6 py-3 rounded-lg text-xs transition-transform transform hover:scale-105 shadow-md"
+                  className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-[#06282A] font-bold px-5 py-3 rounded-lg text-sm transition-transform transform hover:scale-105 shadow-md animate-heartbeat"
                 >
                   <span>Start Playing</span>
                 </button>
@@ -150,34 +150,26 @@ export const StartPage = ({ onStart }: StartPageProps) => {
           >
             <div className="absolute inset-0 bg-black/40" />
             <div
-              className="relative z-10 max-w-3xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
+              className="relative z-10 max-w-3xl w-full text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-start justify-between">
-                <h3 className="text-2xl font-semibold flex items-center gap-3">
-                  <img src="/images/trophy.gif" alt="Trophy" className="w-12 h-12" />
-                  Leaderboard
-                </h3>
-                <button
-                  onClick={() => setShowLeaderboard(false)}
-                  aria-label="Close leaderboard"
-                  className="ml-4 rounded-md p-2 bg-white/6 hover:bg-white/10"
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                aria-label="Close leaderboard"
+                className="absolute top-4 right-4 z-20 rounded-md p-2 bg-white/6 hover:bg-white/10"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
 
-              <div className="mt-4">
-                <Leaderboard />
-              </div>
+              <Leaderboard />
             </div>
           </div>
         )}

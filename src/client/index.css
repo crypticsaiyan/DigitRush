@@ -42,7 +42,7 @@ body {
   font-family: 'editundo';
 }
 .font-mono {
-  font-family: 'editundo';
+  font-family: 'medodicaregular';
 }
 
 /* Force-sized title for modal when other rules may interfere */
@@ -98,6 +98,26 @@ input[type='number']::-webkit-inner-spin-button {
   animation: bounce-in 0.6s ease-out;
 }
 
+/* Heartbeat animation */
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  10%,
+  30% {
+    transform: scale(1.1);
+  }
+  20%,
+  40% {
+    transform: scale(1);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
 /* Responsive text sizing */
 @media (max-width: 640px) {
   .text-4xl {
@@ -130,11 +150,12 @@ input[type='number']::-webkit-inner-spin-button {
   background-repeat: no-repeat;
   border-right: 5px solid #0000;
   border-left: 5px solid #0000;
-  border: 5px solid #144b33;
+  border: 4px solid #144b33;
   padding: 0 10px;
   background-origin: border-box;
   position: relative;
   animation: l9-0 2s infinite;
+  scale: 1.5;
 }
 
 .loader::before {

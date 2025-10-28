@@ -1,4 +1,5 @@
 import { context, reddit } from '@devvit/web/server';
+import { GAME_DURATION_SECONDS } from '../../shared/constants';
 
 export const createPost = async () => {
   const { subredditName } = context;
@@ -12,9 +13,9 @@ export const createPost = async () => {
       appDisplayName: 'DigitRush',
       backgroundUri: 'default-splash.png',
       buttonLabel: 'Tap to Start',
-  description: 'Test your math skills in 30 seconds!',
-  // 'entry' is the expected property name for the web entry path
-  entry: 'index.html',
+      description: `Test your math skills in ${GAME_DURATION_SECONDS} seconds!`,
+      // 'entry' is the expected property name for the web entry path
+      entry: 'index.html',
       heading: 'DigitRush - Math Quiz Challenge',
       appIconUri: 'default-icon.png',
     },

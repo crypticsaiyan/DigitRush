@@ -1,45 +1,100 @@
-# DigitRush - Fast-Paced Math Challenge Game
+# DigitRush - Lightning-Fast Math Challenge Game
 
-DigitRush is an adrenaline-pumping math quiz game built on Reddit's Devvit platform that challenges players to solve arithmetic problems under intense time pressure. Race against a 30-second countdown timer while tackling addition, subtraction, multiplication, and division problems to achieve the highest score possible.
+DigitRush is an ultra-intense, lightning-fast math quiz game built on Reddit's Devvit platform that challenges players to solve arithmetic problems under extreme time pressure. With only **1 second** to complete as many problems as possible, this game transforms simple math into an adrenaline-fueled test of mental agility and quick thinking.
 
 ## What is DigitRush?
 
-DigitRush is a high-intensity mental math game that transforms arithmetic practice into an exciting competitive experience. Players face a continuous stream of randomly generated math problems across four operation types with only 30 seconds to solve as many as possible. The game features:
+DigitRush is a revolutionary high-intensity mental math game that redefines competitive arithmetic gaming. Players face a relentless stream of randomly generated math problems across four operation types with an impossibly short time limit - just 1 second total! This creates the ultimate pressure-cooker environment where every millisecond counts.
 
-- **Real-time 30-second gameplay** with dynamic countdown timer and visual progress bar
-- **Four math operation types**: Addition, subtraction, multiplication, and division with balanced difficulty
-- **Instant visual feedback** with color-coded responses (green for correct, red for incorrect)
-- **Community leaderboards** with medal system (🥇🥈🥉) for competitive play
-- **Clean, minimalist dark theme** with custom typography and mobile-optimized interface
-- **Zero-install gaming** - plays directly within Reddit posts with full-screen immersion
-- **Smart problem generation** - server-side algorithms ensure unique, solvable problems
-- **Real-time score tracking** with motivational achievement messages
-- **Custom animated loading screen** with "Loading" text and dynamic progress indicator
+The game runs natively within Reddit posts through the Devvit platform, allowing users to discover and play games directly from their Reddit feed without any downloads or external websites. Each Reddit post creates its own competitive environment with localized leaderboards and community challenges.
 
-Built with React 19.1.0 and TypeScript 5.8.2, DigitRush runs entirely within Reddit using the Devvit platform, allowing users to play directly from their Reddit feed without any external downloads or installations. The game features a sophisticated component architecture with StartPage, GamePlay, GameResults, and Leaderboard components, all managed through a custom `useMathGame` React hook that handles real-time game state, timer management, and API interactions.
+## Current Game Implementation
 
-## Game Features & Current Implementation
-
-DigitRush is a **fully functional and complete math challenge game** with the following core features:
+DigitRush is a **fully functional and complete math challenge game** featuring:
 
 ### 🎮 Complete Game Flow
-- **StartPage**: Clean interface with vibrant green "DigitRush" title using custom FFFFORWA font, prominent "Start Playing" button, trophy icon (🏆) for leaderboard access, and interactive "How to play?" modal with detailed instructions
-- **GamePlay**: Real-time 30-second gameplay with auto-focused number inputs, instant color-coded feedback (green for correct, red for incorrect), dynamic countdown timer with urgency indicators, and seamless problem transitions
-- **GameResults**: Comprehensive results screen with performance analysis, motivational achievement messages based on score ranges, high score celebrations with special animations, and integrated side-by-side leaderboard
-- **Leaderboard**: Community competition with medal system (🥇🥈🥉), personal ranking display, live score updates, and Redis-backed persistence
-- **Loading States**: Custom animated loading screen with "Loading" text and dynamic progress indicator using the game's brand colors
+- **Reddit Splash Screen**: Custom splash screen appears on Reddit feed with "DigitRush - Math Quiz Challenge" title, compelling description ("Test your math skills in 1 seconds!"), and "Tap to Start" button
+- **StartPage**: Welcome screen with vibrant green "DigitRush" title using custom FFFFORWA font, animated "Start Playing" button with heartbeat animation, trophy icon for leaderboard access, and interactive "How to play?" modal
+- **GamePlay**: Ultra-intense 1-second timed gameplay with auto-focused number inputs, instant color-coded feedback (green for correct, red for incorrect), real-time countdown timer, visual progress bar, and seamless problem transitions  
+- **GameResults**: Comprehensive results screen with performance analysis, "NEW HIGH SCORE!" celebrations with party popper emojis, clock icon with "Time's Up!" message, and integrated leaderboard
+- **Leaderboard**: Community competition with medal system (🥇🥈🥉), personal ranking display, live updates, and Redis-backed persistence
 
 ### 🧮 Mathematical Challenge System
-- **Four Operation Types**: Addition (2-digit + 2-digit), Subtraction (guaranteed positive results), Multiplication (2-digit × 1-digit), Division (clean whole number results only)
-- **Smart Problem Generation**: Server-side algorithm creates unique problems with balanced difficulty and proper mathematical symbols (×, ÷)
-- **Real-Time Feedback**: Instant visual responses with answer reveals for learning, color-coded input backgrounds, and smooth CSS transitions
-- **Unique Problem IDs**: Prevents duplicate submissions and ensures proper game flow with timestamp-based identification
+- **Four Operation Types**: Addition, subtraction, multiplication, and division with balanced difficulty
+- **Smart Problem Generation**: Server-side algorithm creates unique problems with proper mathematical symbols (×, ÷)
+- **Real-Time Feedback**: Instant visual responses with answer reveals for learning and smooth CSS transitions
+- **Unique Problem IDs**: Prevents duplicate submissions and ensures proper game flow
 
-### 🏆 Competitive Features
-- **Post-Specific Leaderboards**: Each Reddit post maintains its own competitive environment with isolated scoring
-- **Medal System**: Gold 🥇, Silver 🥈, Bronze 🥉 recognition for top performers with special border styling
-- **Personal Progress**: High score tracking, rank display, and motivational achievement messages ranging from encouragement to celebration
-- **Real-Time Rankings**: Live leaderboard updates with automatic score persistence and user position tracking
+### 🏆 Competitive Features  
+- **Post-Specific Leaderboards**: Each Reddit post maintains its own competitive environment
+- **Medal System**: Gold 🥇, Silver 🥈, Bronze 🥉 recognition for top performers
+- **Personal Progress**: High score tracking, rank display, and motivational achievement messages
+- **Real-Time Rankings**: Live leaderboard updates with automatic score persistence
+
+### 🎨 Visual Design & User Experience
+- **Dark Theme**: Professional gradient backgrounds (`bg-[#021013]`) with strategic color psychology and optimal readability
+- **Multi-Font Typography**: Custom fonts loaded via CSS @font-face (FFFFORWA for headings, Medodica for body text, editundo for accents)
+- **Mobile-First Design**: Touch-friendly interface with proper viewport settings (`user-scalable=no`) and 16px minimum font size to prevent iOS zoom
+- **Color-Coded Feedback**: Green/red visual responses with smooth CSS transitions and instant answer reveals
+- **Loading States**: Custom animated loading screen with "Loading" text, dynamic progress indicator, and brand colors (#00bf63)
+- **Custom Animations**: Heartbeat animation for start button, bounce-in effects for achievements, and smooth state transitions
+
+### Core Game Features
+
+- **⚡ Ultra-Fast Lightning Rounds** - Only 1 second to solve as many problems as possible
+- **🧮 Four Math Operation Types** - Addition, subtraction, multiplication, and division with balanced difficulty
+- **🎯 Instant Visual Feedback** - Color-coded responses (green for correct, red for incorrect) with immediate answer reveals
+- **🏆 Community Competition** - Post-specific leaderboards with medal system (🥇🥈🥉) for competitive play
+- **🎨 Professional Dark Theme** - Clean, minimalist interface with custom typography and mobile-optimized design
+- **📱 Zero-Install Reddit Gaming** - Plays directly within Reddit posts with full-screen immersion
+- **🤖 Smart Problem Generation** - Server-side algorithms ensure unique, solvable problems with proper mathematical symbols
+- **📊 Real-Time Score Tracking** - Live score updates with achievement celebrations and high score notifications
+- **⏳ Custom Loading Experience** - Animated loading screen with brand colors and smooth transitions
+- **🎮 Custom Splash Screen** - Compelling entry point on Reddit feed with "Tap to Start" button and game description
+
+### Technical Architecture
+
+Built with React 19.1.0 and TypeScript 5.8.2, DigitRush runs entirely within Reddit using the Devvit platform, allowing users to play directly from their Reddit feed without any external downloads or installations. The game features a sophisticated component architecture:
+
+- **App.tsx**: Main application component with loading states and game flow routing
+- **StartPage**: Welcome screen with leaderboard access, game instructions modal, and animated start button
+- **GamePlay**: Real-time timed gameplay with auto-focused inputs, instant feedback, and visual progress indicators
+- **GameResults**: Comprehensive results screen with performance analysis, achievement celebrations, and integrated leaderboard
+- **Leaderboard**: Community competition display with medal system, personal rankings, and live updates
+- **useMathGame Hook**: Custom React hook managing game state, timer precision, API interactions, and game lifecycle
+
+## Current Game Implementation
+
+DigitRush is a **fully functional and complete math challenge game** featuring:
+
+### 🎮 Complete Game Flow
+- **Reddit Splash Screen**: Custom splash screen appears on Reddit feed with "DigitRush - Math Quiz Challenge" title, compelling description ("Test your math skills in 1 seconds!"), and "Tap to Start" button
+- **StartPage**: Welcome screen with vibrant green "DigitRush" title using custom FFFFORWA font, animated "Start Playing" button with heartbeat animation, trophy icon for leaderboard access, and interactive "How to play?" modal
+- **GamePlay**: Ultra-intense 1-second timed gameplay with auto-focused number inputs, instant color-coded feedback (green for correct, red for incorrect), real-time countdown timer, visual progress bar, and seamless problem transitions  
+- **GameResults**: Comprehensive results screen with performance analysis, "NEW HIGH SCORE!" celebrations with party popper emojis, clock icon with "Time's Up!" message, and integrated leaderboard
+- **Leaderboard**: Community competition with medal system (🥇🥈🥉), personal ranking display, live updates, and Redis-backed persistence
+
+### 🧮 Mathematical Challenge System
+- **Four Operation Types**: Addition, subtraction, multiplication, and division with balanced difficulty
+- **Smart Problem Generation**: Server-side algorithm creates unique problems with proper mathematical symbols (×, ÷)
+- **Real-Time Feedback**: Instant visual responses with answer reveals for learning and smooth CSS transitions
+- **Unique Problem IDs**: Prevents duplicate submissions and ensures proper game flow
+
+### 🏆 Competitive Features  
+- **Post-Specific Leaderboards**: Each Reddit post maintains its own competitive environment
+- **Medal System**: Gold 🥇, Silver 🥈, Bronze 🥉 recognition for top performers
+- **Personal Progress**: High score tracking, rank display, and motivational achievement messages
+- **Real-Time Rankings**: Live leaderboard updates with automatic score persistence
+
+### 🎨 Visual Design & User Experience
+- **Dark Theme**: Professional gradient backgrounds (`bg-[#021013]`) with strategic color psychology and optimal readability
+- **Multi-Font Typography**: Custom fonts loaded via CSS @font-face (FFFFORWA for headings, Medodica for body text, editundo for accents)
+- **Mobile-First Design**: Touch-friendly interface with proper viewport settings (`user-scalable=no`) and 16px minimum font size to prevent iOS zoom
+- **Color-Coded Feedback**: Green/red visual responses with smooth CSS transitions and instant answer reveals
+- **Loading States**: Custom animated loading screen with "Loading" text, dynamic progress indicator, and brand colors (#00bf63)
+- **Custom Animations**: Heartbeat animation for start button, bounce-in effects for achievements, and smooth state transitions
+
+
 
 ## Technical Architecture
 
@@ -54,11 +109,15 @@ DigitRush is a **fully functional and complete math challenge game** with the fo
 ### Backend (Express 5.1.0 + Redis)
 - **RESTful API Design**: Comprehensive endpoints for game lifecycle management:
   - `/api/game/init` - Initialize game session with user data and high scores
-  - `/api/game/start` - Begin new game with first problem generation
+  - `/api/game/start` - Begin new game with first problem generation  
   - `/api/game/answer` - Process answers and generate next problems
   - `/api/game/end` - Finalize scores and update leaderboards
   - `/api/leaderboard` - Fetch community rankings and user position
-- **Smart Problem Generation**: Server-side algorithms create unique, balanced math problems with proper difficulty scaling
+- **Smart Problem Generation**: Server-side algorithms create unique, balanced math problems:
+  - **Addition**: 2-digit + 2-digit (10-99 range, e.g., 45 + 67 = 112)
+  - **Subtraction**: Guaranteed positive results (20-99 minus 10 to num1-1, e.g., 89 - 34 = 55)
+  - **Multiplication**: 2-digit × 1-digit mental math (10-99 × 2-9, e.g., 23 × 7 = 161)
+  - **Division**: Clean whole number results only (divisor 2-12, quotient 2-25, e.g., 84 ÷ 6 = 14)
 - **Redis Data Persistence**: 
   - Game state storage with 2-minute expiration for active sessions
   - High score tracking per Reddit post with permanent storage
@@ -89,126 +148,179 @@ DigitRush is a **fully functional and complete math challenge game** with the fo
 
 ## What Makes DigitRush Innovative & Unique
 
-### 🎮 Revolutionary Reddit-Native Gaming Experience
-- **Zero-Install Gaming**: Fully embedded within Reddit posts - no external apps or downloads required
-- **One-Click Launch**: Start gaming directly from Reddit feed with "Launch App" button
-- **Full-Screen Immersion**: Seamless transition from Reddit post to immersive React-based gaming experience
-- **Community-Driven Competition**: Each Reddit post creates its own competitive environment with localized leaderboards
-- **Authenticated Gaming**: Automatic Reddit user authentication - no separate login required
-- **Social Discovery**: Games spread organically through Reddit's sharing and community engagement
+### ⚡ Revolutionary 1-Second Lightning Challenge
+DigitRush pushes the boundaries of mental math gaming with its **extreme 1-second time limit**. This isn't just fast-paced gaming - it's the ultimate test of mathematical reflexes where every millisecond counts. The impossibly short duration transforms simple arithmetic into heart-pounding, adrenaline-fueled challenges that demand instant mental calculation and lightning-fast responses.
 
-### ⚡ High-Intensity Time-Based Gameplay
-- **30-Second Rush**: Heart-pounding countdown creates intense, fast-paced mathematical challenges
-- **Dynamic Visual Feedback**: Progress bar turns red when under 10 seconds, creating urgency and excitement
-- **Instant Problem Validation**: Immediate color-coded responses (green for correct, red for incorrect) with answer reveals
-- **Continuous Flow**: Seamless problem transitions with auto-focused inputs and Enter key support
-- **Real-Time State Management**: Custom `useMathGame` React hook manages complex game flow and timer management
-- **Pressure-Cooker Design**: Time pressure transforms simple math into an adrenaline-fueled challenge
+### 🎮 Native Reddit Gaming Experience
+Unlike traditional web games, DigitRush is **fully embedded within Reddit posts** with zero external downloads required. Players discover games organically through Reddit's feed, click a custom splash screen, and instantly launch into full-screen gaming experiences. Each Reddit post creates its own competitive environment with localized leaderboards, making every game instance a unique community challenge.
 
-### 🧮 Adaptive Mathematical Challenge System
-- **Four Operation Types**: Balanced difficulty across addition, subtraction, multiplication, and division
-- **Smart Problem Algorithm**: Server-side generation ensures unique, solvable problems:
-  - **Addition**: 2-digit + 2-digit (10-99 range, e.g., 45 + 67 = 112)
-  - **Subtraction**: Guaranteed positive results (20-99 minus 10 to num1-1, e.g., 89 - 34 = 55)
-  - **Multiplication**: 2-digit × 1-digit mental math (10-99 × 2-9, e.g., 23 × 7 = 161)
-  - **Division**: Clean whole number results only (divisor 2-12, quotient 2-25, e.g., 84 ÷ 6 = 14)
-- **Unique Problem IDs**: Prevents duplicate submissions and ensures proper game flow
-- **Mathematical Symbols**: Clear display with proper symbols (×, ÷) for better readability
+### 🧮 Precision Mathematical Engine
+The game features a sophisticated **server-side problem generation system** that creates balanced, solvable math problems across four operation types:
 
-### 🏆 Community Competition & Social Gaming
-- **Post-Specific Leaderboards**: Each Reddit post maintains its own competitive environment
-- **Medal System**: Gold 🥇, Silver 🥈, Bronze 🥉 recognition for top performers with special styling
-- **Personal Progress Tracking**: Individual high score tracking, rank display, and motivational messages
-- **Real-Time Rankings**: Live leaderboard updates with automatic score persistence via Redis
-- **Social Integration**: Reddit username integration creates authentic community competition
+- **Addition**: 2-digit + 2-digit (10-99 range, e.g., 45 + 67 = 112)
+- **Subtraction**: Guaranteed positive results (20-99 minus 10 to num1-1, e.g., 89 - 34 = 55)  
+- **Multiplication**: 2-digit × 1-digit mental math (10-99 × 2-9, e.g., 23 × 7 = 161)
+- **Division**: Clean whole number results only (divisor 2-12, quotient 2-25, e.g., 84 ÷ 6 = 14)
 
-### 🎨 Professional Visual Design & User Experience
-- **Clean Dark Theme**: Minimalist interface with gradient backgrounds (`from-black via-[#071019] to-[#021013]`) for optimal readability
-- **Strategic Color Psychology**: Vibrant green (#00bf63) brand identity and color-coded feedback systems
-- **Multi-Font Typography System**: Custom fonts with CSS @font-face loading:
-  - **FFFFORWA**: Heading font for game titles and prominent UI elements like "DigitRush" branding
-  - **Medodica**: Primary body font (18px default) for consistent readability across devices
-  - **editundo**: Game titles, accent text, and monospace elements for distinctive gaming aesthetic
-- **Mobile-First Responsive Design**: Touch-friendly interface with proper viewport settings and user-scalable=no
-- **Performance Optimized**: Lightweight design with custom CSS animations and smooth transitions
-- **Component Architecture**: Modular React components with TypeScript interfaces and strict type checking
-- **Modern Loading Experience**: Animated loading screen with dynamic progress indicators and smooth transitions
+Each problem includes unique IDs to prevent duplicate submissions and uses proper mathematical symbols (×, ÷) for clarity.
 
-### 🔧 Technical Innovation
-- **Real-Time Game Engine**: Custom React hook (`useMathGame`) manages game state, timer, and API interactions
-- **Server-Side Problem Generation**: Express backend creates unique math problems with balanced difficulty algorithms
-- **Redis-Powered Persistence**: Leaderboards and high scores stored with automatic expiration policies
-- **Type-Safe API**: Comprehensive TypeScript interfaces ensure reliable client-server communication
-- **Mobile Optimization**: CSS prevents zoom on input focus, removes number input spinners, and optimizes touch interactions
+### 🏆 Community-Driven Competition
+DigitRush creates authentic competitive gaming through **post-specific leaderboards** where each Reddit post maintains its own ranking system. Players compete for Gold 🥇, Silver 🥈, and Bronze 🥉 medals while tracking personal progress with real-time high score celebrations and achievement notifications.
+
+### 🎨 Professional Mobile-First Design
+The game features a **custom multi-font typography system** with three distinct fonts (FFFFORWA for headings, Medodica for body text, editundo for accents) and a strategic dark theme with vibrant green (#00bf63) branding. The interface provides instant visual feedback through color-coded responses (green for correct, red for incorrect) and smooth CSS animations optimized for mobile gaming.
+
+### 🔧 Advanced Technical Innovation
+Built with **React 19.1.0 and TypeScript 5.8.2**, DigitRush uses a sophisticated component architecture managed by a custom `useMathGame` React hook that handles real-time game state, timer precision, and API interactions. The backend leverages **Express and Redis** for problem generation, score persistence, and leaderboard management with automatic expiration policies.
 
 
 
 ## How to Play DigitRush
 
 ### 🚀 Getting Started
-1. **Find a DigitRush Post** in Reddit communities or subreddits
-2. **Click "Launch App"** on the Reddit post to open the game in full-screen mode
-3. **Navigate the Start Screen**:
+
+1. **Find a DigitRush Post** in Reddit communities or subreddits where the game has been shared
+2. **View the Splash Screen**: You'll see a custom splash screen with:
+   - **Title**: "DigitRush - Math Quiz Challenge"
+   - **Description**: "Test your math skills in 1 seconds!" 
+   - **Background**: Custom splash image (`default-splash.png`)
+   - **App Icon**: DigitRush branding (`default-icon.png`)
+3. **Click "Tap to Start"** on the splash screen to open the game in full-screen mode within Reddit
+4. **Navigate the Start Screen**:
    - View the vibrant green "DigitRush" title with custom FFFFORWA font styling
    - Click the trophy icon (🏆) in the top-right to view the current leaderboard and top scores
-   - Click "How to play?" for detailed instructions modal with game rules
-   - Click the green "Start Playing" button to begin your 30-second challenge
+   - Click "How to play?" for a detailed instructions modal with game rules
+   - Click the animated green "Start Playing" button with heartbeat animation to begin your lightning-fast challenge
 
-### ⚡ During Gameplay (30 Seconds)
-1. **Solve Math Problems**: Each problem appears in large, clear text with proper mathematical symbols (e.g., "45 + 67 = ?", "84 ÷ 6 = ?")
-2. **Enter Your Answer**: Type in the auto-focused input field (optimized for mobile with 16px font to prevent zoom)
-3. **Submit**: Press Enter or click the ✓ button to submit your answer
-4. **Get Instant Feedback**:
+### ⚡ The Ultimate 1-Second Challenge
+
+**WARNING: This is the most intense math game you'll ever play!**
+
+DigitRush features an **extreme 1-second time limit** that creates the ultimate test of mathematical reflexes:
+
+1. **Lightning Speed Challenge**: You have exactly **1 SECOND TOTAL** to solve as many problems as possible
+2. **Solve Math Problems**: Each problem appears in large, clear text (3xl-5xl font size) with proper mathematical symbols:
+   - **Addition**: "45 + 67 = ?" (2-digit + 2-digit, range 10-99)
+   - **Subtraction**: "89 - 34 = ?" (guaranteed positive results, 20-99 minus 10 to num1-1)
+   - **Multiplication**: "23 × 7 = ?" (2-digit × 1-digit, 10-99 × 2-9)
+   - **Division**: "84 ÷ 6 = ?" (clean whole number results, divisor 2-12, quotient 2-25)
+
+3. **Enter Your Answer**: Type in the auto-focused input field (optimized for mobile with 16px font to prevent zoom, number input with spinner arrows removed)
+
+4. **Submit Instantly**: Press **Enter** or click the **✓** button to submit your answer
+
+5. **Get Instant Feedback**:
    - **Green background** = Correct answer ✅ with "Correct!" message
    - **Red background** = Wrong answer ❌ with correct answer revealed for learning
-5. **Continue**: New problems appear immediately after each submission with seamless transitions
-6. **Watch the Timer**: 
-   - Visual progress bar shows time remaining with smooth animations
-   - Timer turns red when under 10 seconds remain for urgency
-   - Live countdown displays seconds remaining in real-time
-7. **Track Your Score**: Live score counter shows problems solved correctly with current streak
+
+6. **Race Against Time**: 
+   - Visual progress bar shows time remaining with smooth animations (green normally, red when <10 seconds)
+   - Timer displays seconds remaining in real-time with color coding
+   - **Critical**: With only 1 second total, every millisecond is precious!
+
+7. **Track Your Score**: Live score counter shows problems solved correctly in real-time
 
 ### 🏆 Results & Competition
-- **View Results**: Comprehensive results screen with performance analysis and statistics
-- **Check Rankings**: Compare against other players on the post-specific leaderboard with live updates
-- **Performance Stats**: View problems per minute, accuracy percentage, and detailed metrics
-- **Motivational Messages**: Get personalized feedback based on your score:
-  - 0 points: "Don't give up! Try again! 💪"
-  - 1-5 points: "Good start! Keep practicing! 📚"
-  - 6-10 points: "Nice work! You're getting better! 👍"
-  - 11-15 points: "Great job! Math wizard in training! 🧙‍♂️"
-  - 16-20 points: "Excellent! You're a math star! ⭐"
-  - 21+ points: "Outstanding! Math genius level! 🏆"
-- **High Score Celebration**: Special animation and "NEW HIGH SCORE!" message for personal bests
-- **Play Again**: Click "🔄 Play Again" for another round or "🏠 Back to Menu" to return
-- **Medal System**: Earn Gold 🥇, Silver 🥈, or Bronze 🥉 for top leaderboard performance
 
-### 🧮 Problem Types & Difficulty
-The game generates four types of balanced math problems with server-side algorithms:
-- **Addition**: 2-digit + 2-digit (10-99 range, e.g., 45 + 67 = 112)
-- **Subtraction**: Always positive results (20-99 minus 10 to num1-1, e.g., 89 - 34 = 55)
-- **Multiplication**: 2-digit × 1-digit mental math (10-99 × 2-9, e.g., 23 × 7 = 161)
-- **Division**: Clean whole numbers only (divisor 2-12, quotient 2-25, e.g., 84 ÷ 6 = 14)
+After your lightning-fast 1-second challenge ends, you'll see:
 
-### 🎮 Game Flow & Components
-- **StartPage**: Welcome screen with leaderboard access, instructions modal, and game launch
-- **GamePlay**: Real-time 30-second challenge with auto-focused inputs and instant feedback
-- **GameResults**: Comprehensive results with performance analysis and leaderboard integration
-- **Leaderboard**: Community competition with medal system and personal ranking display
+- **Comprehensive Results Screen**: 
+  - Clock icon with "Time's Up!" message in vibrant green (#86f6b1)
+  - Performance analysis with detailed statistics including problems/minute and accuracy
+  - Your final score displayed prominently in large text (5xl-6xl font size)
+- **Personal Achievement Tracking**: 
+  - "NEW HIGH SCORE!" celebration with party popper emojis (🎉) and pulsing animation for personal bests
+  - High score comparison with trophy icon display
+- **Community Leaderboard**: 
+  - Side-by-side layout with integrated leaderboard on results screen
+  - Compare against other players on the post-specific leaderboard with live updates
+  - Personal ranking display with current position
+- **Medal System**: Earn Gold 🥇, Silver 🥈, or Bronze 🥉 for top leaderboard performance with special styling
+- **Play Again Options**: 
+  - Click "Play Again" for another lightning round (with loading state and FFFFORWA font styling)
+  - Click "Back to Menu" to return to the start screen
 
-### 💡 Pro Tips for High Scores
-- **Use Enter key** for faster submission than clicking buttons
-- **Stay calm** when the timer turns red - accuracy matters more than speed
-- **Practice mental math** shortcuts like rounding to nearest 10 for addition/subtraction
-- **Memorize multiplication tables** (2-12) for instant recognition of multiplication/division
-- **Look for patterns** in easy problems to solve them quickly (e.g., multiples of 10)
-- **Take advantage** of the auto-focused input for seamless gameplay flow
-- **Don't panic** on wrong answers - learn from the revealed correct answer for improvement
-- **Focus on accuracy** over speed - each correct answer counts equally regardless of time taken
+### 🧮 Mathematical Challenge System
+
+DigitRush generates four types of balanced math problems using server-side algorithms:
+
+- **Addition**: 2-digit + 2-digit numbers (10-99 range)
+  - Example: 45 + 67 = 112
+- **Subtraction**: Always produces positive results (20-99 minus 10 to num1-1)
+  - Example: 89 - 34 = 55
+- **Multiplication**: 2-digit × 1-digit mental math (10-99 × 2-9)
+  - Example: 23 × 7 = 161
+- **Division**: Clean whole number results only (divisor 2-12, quotient 2-25)
+  - Example: 84 ÷ 6 = 14
+
+Each problem includes unique IDs to prevent duplicate submissions and uses proper mathematical symbols for clarity.
+
+### 🎮 Complete Game Flow
+
+1. **Reddit Splash Screen**: Custom splash screen with "DigitRush - Math Quiz Challenge" title, game description, and "Tap to Start" button
+2. **StartPage**: Welcome screen with vibrant green title, leaderboard access via trophy icon, "How to play?" modal, and animated "Start Playing" button
+3. **GamePlay**: Ultra-intense 1-second timed challenge with auto-focused inputs, instant color-coded feedback, and real-time progress tracking
+4. **GameResults**: Comprehensive results with clock icon, performance analysis, achievement celebrations, and side-by-side leaderboard integration
+5. **Leaderboard**: Community competition with medal system, gradient backgrounds for top performers, and live ranking updates
+
+### 💡 Pro Tips for 1-Second Mastery
+
+Given the extreme 1-second time limit, success requires exceptional preparation and speed:
+
+- **Mental Preparation**: Be ready to calculate before the problem appears - every millisecond counts
+- **Use Enter Key**: Fastest possible submission method for lightning-quick responses
+- **Master Speed Math**: With only 1 second, instant calculation ability is essential
+- **Pattern Recognition**: Quickly identify easy problems (multiples of 10, simple divisions)
+- **Stay Calm Under Extreme Pressure**: The 1-second limit creates maximum intensity
+- **Accuracy Over Speed**: Even one correct answer in 1 second is a significant achievement
+- **Finger Positioning**: Keep fingers ready on number keys and Enter for instant response
+- **Trust Your Instincts**: No time to double-check - go with your first calculation
+- **Practice Mental Math**: Regular practice outside the game improves in-game performance
+- **Focus Completely**: Eliminate all distractions for maximum concentration during the 1-second window
+
+### 🎯 Scoring & Achievement System
+
+- **Base Scoring**: 1 point per correct answer
+- **High Score Tracking**: Personal best scores saved permanently using Redis persistence
+- **New High Score Celebration**: Special animations and congratulatory messages
+- **Community Leaderboard Rankings**: Post-specific competition with live updates
+- **Medal Recognition**: Gold, Silver, Bronze medals for top performers with special styling
+- **Performance Analytics**: Detailed statistics including problems per minute and accuracy percentage
+- **Achievement Notifications**: Real-time feedback for personal milestones and improvements
 
 
 
 
+
+## Technical Configuration
+
+### Game Settings
+The game is currently configured with the following settings in `src/shared/constants.ts`:
+- **Game Duration**: 1 second (ultra-fast lightning rounds for maximum intensity and adrenaline rush)
+- **Low Time Threshold**: 10 seconds (when timer changes to red/urgent state - though with 1-second games, this creates immediate urgency)
+
+### Splash Screen Configuration
+The splash screen is configured in `src/server/core/post.ts` with:
+- **App Display Name**: "DigitRush"
+- **Heading**: "DigitRush - Math Quiz Challenge"  
+- **Description**: "Test your math skills in 1 seconds!" (dynamically uses GAME_DURATION_SECONDS)
+- **Button Label**: "Tap to Start"
+- **Background Image**: `default-splash.png`
+- **App Icon**: `default-icon.png`
+
+### Font System
+The game uses three custom fonts loaded via CSS @font-face with font-display: swap:
+- **FFFFORWA**: Heading font (.font-heading class) for game titles like "DigitRush" and prominent UI elements
+- **Medodica**: Primary body font (18px default, .font-mono class) for consistent readability and main interface text
+- **editundo**: Accent font (.font-body class) for game descriptions, instructions, and secondary text
+
+### Component Architecture
+- **App.tsx**: Main application component with loading states, game flow routing, and custom loading animation
+- **StartPage**: Welcome screen with leaderboard modal, "How to play?" instructions, and animated start button
+- **GamePlay**: Core gameplay component with 1-second timer, auto-focused inputs, instant feedback, and progress bar
+- **GameResults**: Results screen with clock icon, achievement celebrations, performance stats, and side-by-side leaderboard
+- **Leaderboard**: Community competition display with medal system, gradient styling, and live rankings
+- **useMathGame**: Custom React hook managing game state, 1-second timer precision, API interactions, and game lifecycle
 
 ## Development Setup
 
@@ -285,7 +397,7 @@ src/
 ## Key Features Summary
 
 - ✅ **Complete Game Flow**: Start → Play → Results with smooth transitions
-- ✅ **30-Second Timed Challenges**: Heart-pounding countdown with visual progress
+- ✅ **Timed Challenges**: Heart-pounding countdown with visual progress (configurable duration)
 - ✅ **Four Math Operations**: Addition, subtraction, multiplication, division
 - ✅ **Real-Time Feedback**: Instant color-coded responses (green/red)
 - ✅ **Community Leaderboards**: Post-specific competition with medal system
@@ -293,6 +405,29 @@ src/
 - ✅ **Custom Typography**: Multi-font system with distinctive gaming aesthetic
 - ✅ **Redis Persistence**: Scores and leaderboards saved permanently
 - ✅ **Reddit Integration**: Native authentication and post-specific environments
+
+## Current Implementation Status
+
+DigitRush is a **fully functional math challenge game** ready for deployment on Reddit's Devvit platform. The game includes:
+
+### ✅ Completed Features
+- **Complete Game Loop**: Reddit splash screen → Start screen → 1-second gameplay → Results with smooth transitions
+- **Real-Time Math Engine**: Four operation types with server-side problem generation and unique problem IDs
+- **Instant Feedback System**: Color-coded responses (green/red) with answer reveals and smooth CSS transitions
+- **Community Competition**: Post-specific leaderboards with medal system, gradient styling, and personal rankings
+- **Mobile-Responsive Design**: Touch-friendly interface with custom fonts, animations, and proper viewport settings
+- **Redis Data Persistence**: Game state, scores, high scores, and leaderboard data with automatic expiration policies
+- **Comprehensive Error Handling**: Loading states, network failure recovery, user feedback, and game session management
+- **Auto-Focused Inputs**: Seamless gameplay flow with Enter key support, mobile optimization, and spinner removal
+- **Custom Splash Screen**: Compelling Reddit feed entry point with dynamic game description and branding
+
+### ⚙️ Configuration Notes
+- Game duration is set to 1 second in `src/shared/constants.ts` for ultra-intense lightning rounds that create maximum adrenaline and challenge
+- All API endpoints (`/api/game/init`, `/api/game/start`, `/api/game/answer`, `/api/game/end`, `/api/leaderboard`) are fully functional with comprehensive error handling
+- Custom fonts (FFFFORWA, Medodica, editundo) are properly loaded via CSS @font-face with font-display: swap for optimal performance
+- CSS animations include heartbeat animation for start button, bounce-in effects for achievements, and smooth state transitions
+- Mobile viewport settings (`user-scalable=no`, 16px minimum font size) prevent zoom on input focus for optimal mobile gaming experience
+- Custom splash screen dynamically uses game duration in description and appears on Reddit feed with compelling branding to attract players
 
 ## Contributing
 

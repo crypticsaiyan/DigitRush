@@ -11,6 +11,7 @@ import {
   LeaderboardResponse,
   LeaderboardEntry,
 } from '../shared/types/api';
+import { GAME_DURATION_MS } from '../shared/constants';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
 import { createPost } from './core/post';
 
@@ -24,9 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.text());
 
 const router = express.Router();
-
-// Game duration (milliseconds) - keep in sync with client default
-const GAME_DURATION_MS = 30000; // 30 seconds
 
 // Helper functions for Redis game state
 async function saveGameState(
