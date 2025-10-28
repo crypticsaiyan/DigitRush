@@ -83,16 +83,26 @@ function generateMathProblem(): MathProblem {
       finalOperation = 'subtraction';
       break;
     case 'multiplication':
-      num1 = getRandomInt(10, 99); // 10-99
-      num2 = getRandomInt(2, 9); // 2-9 (avoid 1 to make it more challenging)
+      num1 = getRandomInt(1, 20); // 1-20 (easier range)
+      num2 = getRandomInt(1, 10); // 1-10 (easier range)
       answer = num1 * num2;
       question = `${num1} × ${num2}`;
       finalOperation = 'multiplication';
       break;
     case 'division':
-      num2 = getRandomInt(2, 12); // 2-12
-      answer = getRandomInt(2, 25); // 2-25
-      num1 = num2 * answer; // Ensure clean division
+      // Create divisors from 1-10 and also include 11
+      const divisors = [...Array.from({ length: 10 }, (_, i) => i + 1), 11]; // [1,2,3,4,5,6,7,8,9,10,11]
+      num2 = divisors[getRandomInt(0, divisors.length - 1)];
+
+      // For divisor 11, use range 100-1000; for others use 1-100
+      if (num2 === 11) {
+        answer = getRandomInt(Math.ceil(100 / 11), Math.floor(1000 / 11)); // Results from ~9 to ~90
+        num1 = num2 * answer; // Ensure clean division
+      } else {
+        answer = getRandomInt(1, Math.floor(100 / num2)); // Ensure result is 1-100 divided by divisor
+        num1 = num2 * answer; // Ensure clean division
+      }
+
       question = `${num1} ÷ ${num2}`;
       finalOperation = 'division';
       break;
@@ -307,8 +317,8 @@ router.post<
       return;
     }
 
-  const timeElapsed = Date.now() - gameState.startTime;
-  const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
+    const timeElapsed = Date.now() - gameState.startTime;
+    const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
     console.log('Time remaining:', timeRemaining);
 
     // Allow one final answer submission even if time has expired
@@ -388,7 +398,7 @@ router.post<
   try {
     const gameState = await getGameState(gameId);
     console.log('Game state for ending:', gameState);
-    
+
     // If game state doesn't exist, it might have already been cleaned up
     // Return a graceful response with score 0
     if (!gameState) {
@@ -397,7 +407,7 @@ router.post<
       const highScoreKey = username ? `highscore:${postId}:${username}` : null;
       const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
       const highScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
-      
+
       res.json({
         type: 'game-end',
         finalScore: 0,
@@ -407,14 +417,14 @@ router.post<
       return;
     }
 
-  const finalScore = gameState.score;
-  await deleteGameState(gameId);
+    const finalScore = gameState.score;
+    await deleteGameState(gameId);
 
-  // Get and update per-user high score
-  const username = await reddit.getCurrentUsername();
-  const highScoreKey = username ? `highscore:${postId}:${username}` : null;
-  const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
-  const currentHighScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
+    // Get and update per-user high score
+    const username = await reddit.getCurrentUsername();
+    const highScoreKey = username ? `highscore:${postId}:${username}` : null;
+    const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
+    const currentHighScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
 
     let isNewHighScore = false;
     let highScore = currentHighScore;
@@ -431,18 +441,24 @@ router.post<
     // (username already fetched above)
     if (username && finalScore > 0) {
       const leaderboardSetKey = `leaderboard_set:${postId}`;
-      console.log('Considering saving to leaderboard:', { username, finalScore, key: leaderboardSetKey });
+      console.log('Considering saving to leaderboard:', {
+        username,
+        finalScore,
+        key: leaderboardSetKey,
+      });
 
       try {
         // Check existing score for this user
         const existingScore = await redis.zScore(leaderboardSetKey, username);
 
-  // If no existing score or this score is higher, update the sorted set
-  if (existingScore == null || finalScore > existingScore) {
+        // If no existing score or this score is higher, update the sorted set
+        if (existingScore == null || finalScore > existingScore) {
           await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
           console.log('Score saved to leaderboard (new high or first entry)');
         } else {
-          console.log('Not saving to leaderboard; existing score is higher or equal', { existingScore });
+          console.log('Not saving to leaderboard; existing score is higher or equal', {
+            existingScore,
+          });
         }
       } catch (err) {
         console.error('Failed to update leaderboard:', err);
@@ -504,7 +520,7 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
       for (const member of members) {
         const username = member.member;
         const score = member.score;
-        
+
         // Try to get user avatar
         let avatarUrl: string | undefined;
         try {
@@ -530,12 +546,12 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         } catch (err) {
           console.log(`Could not fetch avatar for ${username}:`, err);
         }
-        
+
         // Final fallback to redditstatic default if still missing
         if (!avatarUrl) {
           avatarUrl = defaultAvatarFromUsername(username);
         }
-        
+
         console.log('Parsed entry:', { username, score, avatarUrl });
         entries.push({
           username,
@@ -598,7 +614,13 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         }
       }
 
-      console.log('Sending leaderboard response:', { topEntries, userRank, userScore, userUsername, userAvatarUrl });
+      console.log('Sending leaderboard response:', {
+        topEntries,
+        userRank,
+        userScore,
+        userUsername,
+        userAvatarUrl,
+      });
 
       res.json({
         type: 'leaderboard',
