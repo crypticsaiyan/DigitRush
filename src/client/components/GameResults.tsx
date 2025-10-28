@@ -71,15 +71,11 @@ export const GameResults = ({ game }: GameResultsProps) => {
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:flex-1">
             <div className="sm:col-span-1">
               {game.isNewHighScore && (
-                <div className="bg-[#16a085]/20 border-2 border-[#16a085] rounded-lg p-4 mb-4 animate-pulse">
-                  <br />
                   <h2 className="text-2xl font-bold text-[#86f6b1] mb-1 flex items-center justify-center gap-2">
                     <img src="/images/partypopper.png" alt="Party" className="w-6" />
                     NEW HIGH SCORE!
                     <img src="/images/partypopper.png" alt="Party" className="w-6" />
                   </h2>
-                  <p className="text-white/80">Congratulations!</p>
-                </div>
               )}
 
               <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-lg p-6 mb-4 text-center shadow-md">

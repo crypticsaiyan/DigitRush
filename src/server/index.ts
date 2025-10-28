@@ -210,10 +210,9 @@ router.get<{ postId: string }, GameInitResponse | { status: string; message: str
     }
 
     try {
-      const [username, highScoreStr] = await Promise.all([
-        reddit.getCurrentUsername(),
-        redis.get(`highscore:${postId}`),
-      ]);
+      const username = await reddit.getCurrentUsername();
+      const userKey = username ? `highscore:${postId}:${username}` : null;
+      const highScoreStr = userKey ? await redis.get(userKey) : null;
 
       res.json({
         type: 'game-init',
@@ -394,8 +393,9 @@ router.post<
     // Return a graceful response with score 0
     if (!gameState) {
       console.log('Game state not found, returning default values');
-      const highScoreKey = `highscore:${postId}`;
-      const currentHighScoreStr = await redis.get(highScoreKey);
+      const username = await reddit.getCurrentUsername();
+      const highScoreKey = username ? `highscore:${postId}:${username}` : null;
+      const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
       const highScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
       
       res.json({
@@ -407,13 +407,14 @@ router.post<
       return;
     }
 
-    const finalScore = gameState.score;
-    await deleteGameState(gameId);
+  const finalScore = gameState.score;
+  await deleteGameState(gameId);
 
-    // Get and update high score
-    const highScoreKey = `highscore:${postId}`;
-    const currentHighScoreStr = await redis.get(highScoreKey);
-    const currentHighScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
+  // Get and update per-user high score
+  const username = await reddit.getCurrentUsername();
+  const highScoreKey = username ? `highscore:${postId}:${username}` : null;
+  const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
+  const currentHighScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
 
     let isNewHighScore = false;
     let highScore = currentHighScore;
@@ -421,11 +422,13 @@ router.post<
     if (finalScore > currentHighScore) {
       isNewHighScore = true;
       highScore = finalScore;
-      await redis.set(highScoreKey, finalScore.toString());
+      if (highScoreKey) {
+        await redis.set(highScoreKey, finalScore.toString());
+      }
     }
 
     // Save to leaderboard using sorted set, but only if this is the user's best score
-    const username = await reddit.getCurrentUsername();
+    // (username already fetched above)
     if (username && finalScore > 0) {
       const leaderboardSetKey = `leaderboard_set:${postId}`;
       console.log('Considering saving to leaderboard:', { username, finalScore, key: leaderboardSetKey });
