@@ -9,6 +9,10 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fallback Reddit default avatar based on rank (1..8 cycling)
+  const defaultAvatar = (rank: number) =>
+    `https://www.redditstatic.com/avatars/defaults/v2/avatar_default_${(rank % 8) + 1}.png`;
+
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
@@ -26,6 +30,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
     fetchLeaderboard();
   }, []);
 
+
   // kept for potential future use
 
   return (
@@ -42,7 +47,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
           <img src="/images/trophy.gif" alt="Trophy" className="w-10 h-10 sm:w-12 sm:h-12" />
         )}
         <h2 className="text-2xl sm:text-3xl font-bold text-[#86f6b1] flex items-center gap-3">
-          <span className="text-3xl md:text-4xl test-white">Leaderboard</span>
+          <span className="text-3xl md:text-4xl text-white">Leaderboard</span>
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
         </h2>
       </div>
@@ -109,24 +114,26 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                             : 'ring-1 ring-[#00bf63]'
                     }`}
                   >
-                    {entry.avatarUrl ? (
-                      <img
-                        src={entry.avatarUrl}
-                        alt={`${entry.username}'s avatar`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Fallback to initials if image fails to load
-                          const target = e.target as HTMLImageElement;
+                    <img
+                      src={entry.avatarUrl || defaultAvatar(entry.rank)}
+                      alt={`${entry.username}'s avatar`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        // Prevent infinite loop
+                        if ((target as any)._fallbackApplied) {
+                          // If even fallback fails, show initials block
                           target.style.display = 'none';
                           const fallback = target.nextElementSibling as HTMLElement;
                           if (fallback) fallback.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
+                          return;
+                        }
+                        (target as any)._fallbackApplied = true;
+                        target.src = defaultAvatar(entry.rank);
+                      }}
+                    />
                     <div
-                      className={`absolute inset-0 flex items-center justify-center font-bold text-xl ${
-                        entry.avatarUrl ? 'hidden' : 'flex'
-                      } ${
+                      className={`absolute inset-0 hidden items-center justify-center font-bold text-xl ${
                         entry.rank === 1
                           ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black'
                           : entry.rank === 2

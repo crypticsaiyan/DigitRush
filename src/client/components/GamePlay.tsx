@@ -153,13 +153,16 @@ export const GamePlay = ({ game }: GamePlayProps) => {
           <div className="flex items-center justify-between mb-8 gap-4 w-full">
             {/* Score - Top Left */}
             <div className="flex-shrink-0">
-              <div className="font-mono text-3xl md:text-4xl font-bold text-[#86f6b1]">
-                {game.currentScore}
+              <div className="flex items-baseline gap-2 font-mono">
+                <span className="hidden sm:inline text-lg text-gray-300">Score:</span>
+                <span className="text-3xl md:text-4xl font-bold text-[#86f6b1]">
+                  {game.currentScore}
+                </span>
               </div>
             </div>
 
             {/* Time and Progress Bar - Top Right */}
-            <div className="flex items-center gap-3 w-[150px] md:w-[200px] justify-end">
+            <div className="flex items-center gap-3 w-[200px] md:w-[280px] justify-end">
               <div className="flex-shrink-0">
                 <div
                   className={`font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= LOW_TIME_THRESHOLD ? 'text-red-400' : 'text-green-400'}`}
@@ -167,7 +170,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
                   {game.timeRemaining}s
                 </div>
               </div>
-              <div className="w-[100px]">
+              <div className="w-[140px] md:w-[200px]">
                 <div className="bg-gray-600 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-500 ${

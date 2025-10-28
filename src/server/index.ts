@@ -487,6 +487,16 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
       const members = await redis.zRange(leaderboardSetKey, 0, -1, { by: 'rank', reverse: true });
       console.log('Retrieved members:', members);
 
+      // Helper: default redditstatic avatar from username (stable)
+      const defaultAvatarFromUsername = (name: string) => {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+          hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+        }
+        const idx = (hash % 8) + 1; // 1..8
+        return `https://www.redditstatic.com/avatars/defaults/v2/avatar_default_${idx}.png`;
+      };
+
       // Parse the members - member is username, score is the sort value
       for (const member of members) {
         const username = member.member;
@@ -495,11 +505,32 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         // Try to get user avatar
         let avatarUrl: string | undefined;
         try {
-          const user = await reddit.getUserByUsername(username);
-          // Reddit user object might have different property names for avatar
-          avatarUrl = (user as any)?.iconImg || (user as any)?.icon_img || (user as any)?.snoovatar_img || undefined;
+          // Prefer snoovatar via dedicated API when available
+          // Call via the reddit object to preserve 'this' binding used internally
+          if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+            const url = await (reddit as any).getSnoovatarUrl(username);
+            console.log(`getSnoovatarUrl(${username}) =>`, url);
+            if (typeof url === 'string' && url.length > 0) {
+              avatarUrl = url;
+            }
+          }
+
+          if (!avatarUrl) {
+            const user = await reddit.getUserByUsername(username);
+            // Reddit user object might have different property names for avatar
+            avatarUrl =
+              (user as any)?.snoovatar_img ||
+              (user as any)?.iconImg ||
+              (user as any)?.icon_img ||
+              undefined;
+          }
         } catch (err) {
           console.log(`Could not fetch avatar for ${username}:`, err);
+        }
+        
+        // Final fallback to redditstatic default if still missing
+        if (!avatarUrl) {
+          avatarUrl = defaultAvatarFromUsername(username);
         }
         
         console.log('Parsed entry:', { username, score, avatarUrl });
@@ -507,7 +538,7 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           username,
           score,
           rank: 0, // Will be set after sorting
-          ...(avatarUrl && { avatarUrl }),
+          avatarUrl,
         });
       }
 
