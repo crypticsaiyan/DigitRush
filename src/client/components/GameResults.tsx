@@ -21,11 +21,11 @@ export const GameResults = ({ game }: GameResultsProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
       <main className="w-full max-w-5xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-6 items-stretch">
           {/* Results Card - hero style */}
-          <section className="flex-1 bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-6 md:p-8 shadow-lg">
+          <section className="flex-1 bg-[#06282a] border border-[#122e2a] rounded-2xl p-6 md:p-8 shadow-lg">
             <div className="text-center">
               <h1 className="font-heading text-3xl md:text-4xl text-[#86f6b1] font-extrabold">⏰ Time's Up!</h1>
               <p className="mt-3 text-gray-300">Here's how you did:</p>
@@ -55,7 +55,7 @@ export const GameResults = ({ game }: GameResultsProps) => {
                   <p className="text-2xl font-bold text-[#86f6b1]">{game.highScore}</p>
                 </div>
 
-                <div className="bg-white/6 border border-white/10 rounded-lg p-4">
+                <div className="bg-[#0b2f2a] border border-[#122e2a] rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-200 mb-2">📊 Performance</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -95,7 +95,7 @@ export const GameResults = ({ game }: GameResultsProps) => {
 
           {/* Leaderboard side card (stacked on small screens) */}
           <aside className="w-full lg:w-80">
-            <div className="bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-4 shadow-lg h-full">
+            <div className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 shadow-lg h-full">
               <h3 className="text-lg font-semibold text-gray-200 mb-3">🏆 Leaderboard</h3>
               <Leaderboard />
             </div>

@@ -7,7 +7,7 @@ export const App: React.FC = () => {
 
   if (game.loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-[#021013]">
         <div className="text-center">
           <div className="loader-container">
             <div className="loader text-white mb-4"></div>

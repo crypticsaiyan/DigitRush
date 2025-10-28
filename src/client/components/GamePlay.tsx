@@ -95,7 +95,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
   if (!game.currentProblem) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading next problem...</p>
@@ -105,15 +105,11 @@ export const GamePlay = ({ game }: GamePlayProps) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
-      {/* Subtle background shapes to match StartPage */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -left-28 -top-20 w-80 h-80 bg-gradient-to-tr from-[#0b3b2a] to-[#06383b] opacity-25 rounded-full blur-3xl transform rotate-12" />
-        <div className="absolute -right-28 -bottom-20 w-72 h-72 bg-gradient-to-bl from-[#1a1a2e] to-[#40235a] opacity-18 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
+      {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
-        <section className="bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
+  <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
           {/* Header with score, problem and timer centered */}
           <div className="flex flex-col items-center justify-center mb-6 gap-3 text-center">
             <div>

@@ -34,7 +34,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
   };
 
   return (
-    <div className={compact ? 'w-full' : 'bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-4 sm:p-6 w-full shadow-lg'}>
+    <div className={compact ? 'w-full' : 'bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 w-full shadow-lg'}>
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-bold text-[#86f6b1]">🏆 Leaderboard</h2>

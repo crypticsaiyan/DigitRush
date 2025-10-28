@@ -23,12 +23,8 @@ export const StartPage = ({ onStart }: StartPageProps) => {
   }, [showHow, showLeaderboard]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-black via-[#071019] to-[#021013]">
-      {/* Subtle background shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -left-32 -top-24 w-96 h-96 bg-gradient-to-tr from-[#0b3b2a] to-[#06383b] opacity-30 rounded-full blur-3xl transform rotate-12" />
-        <div className="absolute -right-32 -bottom-24 w-80 h-80 bg-gradient-to-bl from-[#1a1a2e] to-[#40235a] opacity-20 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
+      {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
         <div className="flex justify-end mb-6">
@@ -36,7 +32,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
           <button
             aria-label="Open leaderboard"
             onClick={() => setShowLeaderboard(true)}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-white/6 to-white/4 hover:from-white/8 hover:to-white/6 text-white/95 px-3 py-2 rounded-xl transition transform hover:scale-105 shadow-sm"
+            className="inline-flex items-center gap-3 bg-white/4 hover:from-white/8 hover:to-white/6 text-white/95 px-3 py-2 rounded-xl transition transform hover:scale-105 shadow-sm"
             title="Leaderboard"
           >
             <div className="flex items-center justify-center w-16 h-16 bg-[#ffd166] text-black rounded-lg">
@@ -62,7 +58,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
           </button>
         </div>
 
-        <section className="bg-white/5 backdrop-blur-md border border-white/6 rounded-2xl p-8 md:p-12 shadow-lg">
+  <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-8 md:p-12 shadow-lg">
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="flex-1 text-center md:text-left">
               <h1 className="font-heading text-4xl md:text-5xl font-extrabold mb-6 text-[#86f6b1]">
@@ -98,7 +94,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               aria-modal="true"
               onClick={() => setShowHow(false)}
             >
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+              <div className="absolute inset-0 bg-black/40" />
               <div
                 className="relative z-10 max-w-2xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)]"
                 onClick={(e) => e.stopPropagation()}
@@ -152,7 +148,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
             aria-modal="true"
             onClick={() => setShowLeaderboard(false)}
           >
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-black/40" />
             <div
               className="relative z-10 max-w-3xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
               onClick={(e) => e.stopPropagation()}
