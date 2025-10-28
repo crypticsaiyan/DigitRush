@@ -77,8 +77,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
       message: isCorrect ? '✅ Correct!' : `❌ Wrong! Answer was ${game.currentProblem.answer}`,
     });
 
-  // keep the input value (previous answer) visible while submitting;
-  // it will be cleared when the next problem arrives
+    // keep the input value (previous answer) visible while submitting;
+    // it will be cleared when the next problem arrives
 
     // Submit answer - input will be re-enabled when new problem arrives
     await game.submitAnswer(answer);
@@ -131,7 +131,9 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
             <div className="mt-3">
               <p className="font-body text-sm text-gray-400">Time</p>
-              <div className={`mt-2 font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}>
+              <div
+                className={`mt-2 font-mono text-2xl md:text-3xl font-bold ${game.timeRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}
+              >
                 {game.timeRemaining}s
               </div>
             </div>
@@ -162,8 +164,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
                   feedback.type === 'correct'
                     ? 'bg-green-900/30 border-2 border-green-400 text-green-200 focus:border-green-400'
                     : feedback.type === 'incorrect'
-                    ? 'bg-red-900/30 border-2 border-red-400 text-red-200 focus:border-red-400'
-                    : 'bg-gray-700 border-2 border-gray-600 text-gray-200 focus:border-indigo-500'
+                      ? 'bg-red-900/30 border-2 border-red-400 text-red-200 focus:border-red-400'
+                      : 'bg-gray-700 border-2 border-gray-600 text-gray-200 focus:border-indigo-500'
                 } disabled:opacity-75 disabled:cursor-not-allowed`}
                 aria-invalid={feedback.type === 'incorrect'}
                 autoComplete="off"

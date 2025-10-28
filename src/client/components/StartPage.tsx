@@ -39,8 +39,8 @@ export const StartPage = ({ onStart }: StartPageProps) => {
             className="inline-flex items-center gap-3 bg-gradient-to-r from-white/6 to-white/4 hover:from-white/8 hover:to-white/6 text-white/95 px-3 py-2 rounded-xl transition transform hover:scale-105 shadow-sm"
             title="Leaderboard"
           >
-            <div className="flex items-center justify-center w-9 h-9 bg-[#ffd166] text-black rounded-lg text-lg">
-              🏆
+            <div className="flex items-center justify-center w-16 h-16 bg-[#ffd166] text-black rounded-lg">
+              <img src="/images/trophy.gif" alt="Trophy" className="w-12 h-12" />
             </div>
 
             <div className="hidden sm:flex flex-col leading-tight text-left">
@@ -99,10 +99,10 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               onClick={() => setShowHow(false)}
             >
               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                <div
-                  className="relative z-10 max-w-2xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)]"
-                  onClick={(e) => e.stopPropagation()}
-                >
+              <div
+                className="relative z-10 max-w-2xl w-full bg-[#062d2e] border-2 border-[#16a085] rounded-2xl p-4 sm:p-6 text-white shadow-xl max-h-[calc(100vh-6rem)]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex justify-between items-start gap-4 custom">
                   {/* Use explicit responsive sizes + enforced class to ensure size increases */}
                   <h3 className="how-title text-3xl semi-bold">How to play</h3>
@@ -158,7 +158,10 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between">
-                <h3 className="text-2xl font-semibold">🏆 Leaderboard</h3>
+                <h3 className="text-2xl font-semibold flex items-center gap-3">
+                  <img src="/images/trophy.gif" alt="Trophy" className="w-12 h-12" />
+                  Leaderboard
+                </h3>
                 <button
                   onClick={() => setShowLeaderboard(false)}
                   aria-label="Close leaderboard"
@@ -184,7 +187,9 @@ export const StartPage = ({ onStart }: StartPageProps) => {
         )}
 
         <footer className="mt-6 text-center text-2xl text-white/70 hidden sm:block">
-          Tip: press <span className="px-3 py-1 bg-white/6 rounded text-sm inline-block">Enter</span> to submit answers.
+          Tip: press{' '}
+          <span className="px-3 py-1 bg-white/6 rounded text-sm inline-block">Enter</span> to submit
+          answers.
         </footer>
       </main>
     </div>
