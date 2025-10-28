@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMathGame } from '../hooks/useMathGame';
 import { Leaderboard } from './Leaderboard';
+import type { LeaderboardResponse } from '../../shared/types/api';
 
 interface GameResultsProps {
   game: ReturnType<typeof useMathGame>;
@@ -8,6 +9,7 @@ interface GameResultsProps {
 
 export const GameResults = ({ game }: GameResultsProps) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   const getScoreColor = () => {
     // Use the app's accent heading color for consistency across screens
@@ -26,6 +28,25 @@ export const GameResults = ({ game }: GameResultsProps) => {
     return;
   }, [showLeaderboard]);
 
+  // Fetch current user's rank for phone-only leaderboard block
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/leaderboard');
+        if (!res.ok) return;
+        const data: LeaderboardResponse = await res.json();
+        if (cancelled) return;
+        setUserRank(data.userRank);
+      } catch {
+        // ignore errors silently for this auxiliary UI
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen sm:h-screen flex items-center justify-center p-6 bg-[#021013]">
       <main className="w-full max-w-3xl mx-auto sm:h-full sm:flex sm:items-stretch">
@@ -36,7 +57,7 @@ export const GameResults = ({ game }: GameResultsProps) => {
             aria-label="Open leaderboard"
             onClick={() => setShowLeaderboard(true)}
             title="Leaderboard"
-            className="absolute top-4 right-4 p-0 hover:scale-105 transition-transform focus:outline-none"
+            className="absolute top-4 right-4 p-0 hover:scale-105 transition-transform focus:outline-none hidden sm:block"
           >
             <img src="/images/trophy.gif" alt="Trophy" className="w-8 h-8 sm:w-10 sm:h-10" />
           </button>
@@ -76,11 +97,27 @@ export const GameResults = ({ game }: GameResultsProps) => {
                 <div className="flex items-center justify-between whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <img src="/images/gold.png" alt="Gold" className="w-10" />
-                    <span className="text-lg font-semibold text-[#86f6b1]">High Score</span>
+                    <span className="text-lg font-semibold text-white">High Score</span>
                   </div>
-                  <span className="text-2xl font-bold text-[#86f6b1]">{game.highScore}</span>
+                  <span className="text-2xl font-bold text-white">{game.highScore}</span>
                 </div>
               </div>
+
+              {/* Phone-only: Leaderboard quick access block, styled like High Score */}
+              <button
+                type="button"
+                onClick={() => setShowLeaderboard(true)}
+                className="sm:hidden bg-[#062d2e] border border-[#16a085] rounded-lg p-4 w-full text-left hover:bg-white/5 transition"
+                aria-label="Open leaderboard"
+              >
+                <div className="flex items-center justify-between whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <img src="/images/trophy.gif" alt="Leaderboard" className="w-10 h-10" />
+                    <span className="text-lg font-semibold text-white">Leaderboard</span>
+                  </div>
+                  <span className="text-2xl font-bold text-[#86f6b1]">{userRank ? `#${userRank}` : 'View'}</span>
+                </div>
+              </button>
 
               <div className="bg-[#0b2f2a] border border-[#122e2a] rounded-lg p-4">
                 <h3 className="text-2xl font-semibold text-gray-200 mb-2 flex items-center gap-2">

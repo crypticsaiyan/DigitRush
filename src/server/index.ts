@@ -556,22 +556,54 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
       // Find current user's rank and score
       let userRank: number | null = null;
       let userScore: number | null = null;
+      let userUsername: string | null = null;
+      let userAvatarUrl: string | null | undefined = null;
 
       if (currentUsername) {
+        userUsername = currentUsername;
         const userEntry = entries.find((e) => e.username === currentUsername);
         if (userEntry) {
           userRank = entries.indexOf(userEntry) + 1;
           userScore = userEntry.score;
+          userAvatarUrl = userEntry.avatarUrl;
+        } else {
+          // Compute avatar for current user (not necessarily in top entries)
+          try {
+            if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+              const url = await (reddit as any).getSnoovatarUrl(currentUsername);
+              console.log(`getSnoovatarUrl(${currentUsername}) =>`, url);
+              if (typeof url === 'string' && url.length > 0) {
+                userAvatarUrl = url;
+              }
+            }
+
+            if (!userAvatarUrl) {
+              const user = await reddit.getUserByUsername(currentUsername);
+              userAvatarUrl =
+                (user as any)?.snoovatar_img ||
+                (user as any)?.iconImg ||
+                (user as any)?.icon_img ||
+                undefined;
+            }
+          } catch (err) {
+            console.log(`Could not fetch avatar for current user ${currentUsername}:`, err);
+          }
+
+          if (!userAvatarUrl) {
+            userAvatarUrl = defaultAvatarFromUsername(currentUsername);
+          }
         }
       }
 
-      console.log('Sending leaderboard response:', { topEntries, userRank, userScore });
+      console.log('Sending leaderboard response:', { topEntries, userRank, userScore, userUsername, userAvatarUrl });
 
       res.json({
         type: 'leaderboard',
         entries: topEntries,
         userRank,
         userScore,
+        userUsername,
+        userAvatarUrl: userAvatarUrl ?? null,
       });
     } catch (error) {
       console.error(`Leaderboard Error:`, error);

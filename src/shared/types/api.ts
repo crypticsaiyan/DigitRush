@@ -65,4 +65,6 @@ export type LeaderboardResponse = {
   entries: LeaderboardEntry[];
   userRank: number | null;
   userScore: number | null;
+  userUsername: string | null;
+  userAvatarUrl?: string | null;
 };

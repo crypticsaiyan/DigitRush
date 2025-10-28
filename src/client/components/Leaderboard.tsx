@@ -30,7 +30,6 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
     fetchLeaderboard();
   }, []);
 
-
   // kept for potential future use
 
   return (
@@ -38,7 +37,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
       className={
         compact
           ? 'w-full'
-          : 'bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-8 w-full shadow-lg'
+          : 'bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-8 w-full sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg'
       }
     >
       {/* Header */}
@@ -68,7 +67,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
             <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-xl p-5 mb-6 shadow-md">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#86f6b1] font-semibold mb-1 uppercase tracking-wide">
+                  <p className="text-lg text-[#86f6b1] font-semibold mb-1 uppercase tracking-wide">
                     Your Ranking
                   </p>
                   <div className="flex items-center gap-3">
@@ -77,20 +76,45 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                     </span>
                     <div className="h-8 w-px bg-[#16a085]"></div>
                     <span className="text-2xl font-bold text-white">{leaderboard.userScore}</span>
-                    <span className="text-sm text-gray-400">pts</span>
+                    <span className="text-lg text-gray-400">pts</span>
                   </div>
                 </div>
-                <div className="text-5xl opacity-20">👤</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right flex flex-col items-end">
+                    <p className="text-xl font-bold text-white leading-tight">
+                      {leaderboard.userUsername || 'You'}
+                    </p>
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white">
+                      <img
+                        src={
+                          leaderboard.userAvatarUrl ||
+                          'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'
+                        }
+                        alt={(leaderboard.userUsername || 'You') + "'s avatar"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="absolute inset-0 hidden items-center justify-center bg-[#0b3a3b] text-white font-bold">
+                        {(leaderboard.userUsername || 'You').substring(0, 2).toUpperCase()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {/* Leaderboard List (compact to fit top 10) */}
-          <div className="space-y-2 pr-1">
+          <div className="space-y-1 pr-1">
             {leaderboard.entries.map((entry: LeaderboardEntry, index: number) => (
               <div
                 key={entry.username}
-                className={`group flex items-center justify-between p-3 rounded-xl transition-all duration-200 hover:scale-[1.01] ${
+                className={`group flex items-center justify-between p-2 rounded-xl transition-all duration-200 hover:scale-[1.01] ${
                   entry.rank === 1
                     ? 'bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border-2 border-yellow-500 shadow-lg shadow-yellow-500/20'
                     : entry.rank === 2
@@ -101,10 +125,10 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   {/* User Avatar */}
                   <div
-                    className={`relative w-10 h-10 rounded-full overflow-hidden ${
+                    className={`relative w-8 h-8 rounded-full overflow-hidden ${
                       entry.rank === 1
                         ? 'ring-2 ring-yellow-400'
                         : entry.rank === 2
@@ -149,7 +173,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                   <div>
                     <div className="flex items-center gap-2">
                       <p
-                        className={`font-bold text-base ${
+                        className={`font-bold text-xl leading-tight ${
                           entry.rank === 1
                             ? 'text-yellow-300'
                             : entry.rank === 2
@@ -164,7 +188,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                     </div>
                     {entry.rank <= 3 && (
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-gray-400 font-medium">
+                        <p className="text-lg leading-tight text-gray-400 font-medium">
                           {entry.rank === 1
                             ? 'Champion'
                             : entry.rank === 2
@@ -173,24 +197,24 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                         </p>
                         {/* Small medal beside title */}
                         {entry.rank === 1 && (
-                          <img src="/images/gold.png" alt="Gold Medal" className="w-5 h-5" />
+                          <img src="/images/gold.png" alt="Gold Medal" className="w-4 h-4" />
                         )}
                         {entry.rank === 2 && (
-                          <img src="/images/silver.png" alt="Silver Medal" className="w-5 h-5" />
+                          <img src="/images/silver.png" alt="Silver Medal" className="w-4 h-4" />
                         )}
                         {entry.rank === 3 && (
-                          <img src="/images/bronze.png" alt="Bronze Medal" className="w-5 h-5" />
+                          <img src="/images/bronze.png" alt="Bronze Medal" className="w-4 h-4" />
                         )}
                       </div>
                     )}
                     {entry.rank > 3 && (
-                      <p className="text-xs text-gray-400 font-medium mt-0.5">Rank #{entry.rank}</p>
+                      <p className="text-lg leading-tight text-gray-400 font-medium mt-0.5">Rank #{entry.rank}</p>
                     )}
                   </div>
                 </div>
                 <div className="text-right">
                   <span
-                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold shadow-md ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-lg text-lg font-bold shadow-md ${
                       entry.rank === 1
                         ? 'bg-yellow-500 text-black'
                         : entry.rank === 2
@@ -202,7 +226,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                   >
                     {entry.score}
                   </span>
-                  <p className="text-[10px] text-gray-400 mt-1 font-medium">points</p>
+                  <p className="text-lg text-gray-400 mt-0 font-medium leading-tight">points</p>
                 </div>
               </div>
             ))}
