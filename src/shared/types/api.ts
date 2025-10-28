@@ -57,6 +57,7 @@ export type LeaderboardEntry = {
   username: string;
   score: number;
   rank: number;
+  avatarUrl?: string;
 };
 
 export type LeaderboardResponse = {

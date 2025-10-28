@@ -52,9 +52,9 @@ export const GameResults = ({ game }: GameResultsProps) => {
                 </div>
               )}
 
-              <div className="bg-gray-700 border border-gray-600 rounded-lg p-6 mb-4 text-center">
-                <h3 className="text-2xl font-semibold text-gray-200 mb-2">Your Score</h3>
-                <p className={`text-5xl md:text-6xl font-bold mb-2 ${getScoreColor()}`}>
+              <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-lg p-6 mb-4 text-center shadow-md">
+                <h3 className="text-2xl font-semibold text-[#86f6b1] mb-2">Your Score</h3>
+                <p className={`text-5xl md:text-6xl font-extrabold mb-2 ${getScoreColor()}`}>
                   {game.currentScore}
                 </p>
                 <p className="text-gray-300">problems solved</p>
@@ -63,11 +63,13 @@ export const GameResults = ({ game }: GameResultsProps) => {
 
             <div className="md:col-span-1 space-y-4">
               <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-[#86f6b1] mb-1 flex items-center gap-2">
-                  <img src="/images/trophy.gif" alt="Trophy" className="w-10" />
-                  High Score
-                </h3>
-                <p className="text-2xl font-bold text-[#86f6b1]">{game.highScore}</p>
+                <div className="flex items-center justify-between whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <img src="/images/trophy.gif" alt="Trophy" className="w-10" />
+                    <span className="text-lg font-semibold text-[#86f6b1]">High Score</span>
+                  </div>
+                  <span className="text-2xl font-bold text-[#86f6b1]">{game.highScore}</span>
+                </div>
               </div>
 
               <div className="bg-[#0b2f2a] border border-[#122e2a] rounded-lg p-4">
@@ -83,7 +85,13 @@ export const GameResults = ({ game }: GameResultsProps) => {
                   <div>
                     <p className="text-gray-400">Accuracy</p>
                     <p className="font-bold text-gray-200">
-                      {game.currentScore > 0 ? '100%' : '0%'}
+                      {(() => {
+                        const total = game.totalAnswered ?? 0;
+                        const correct = game.totalCorrect ?? 0;
+                        if (total === 0) return '0%';
+                        const pct = Math.round((correct / total) * 100);
+                        return `${pct}%`;
+                      })()}
                     </p>
                   </div>
                 </div>

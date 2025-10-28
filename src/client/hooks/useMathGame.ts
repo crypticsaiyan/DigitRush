@@ -15,6 +15,8 @@ interface MathGameState {
   username: string | null;
   highScore: number;
   currentScore: number;
+  totalAnswered: number;
+  totalCorrect: number;
   timeRemaining: number;
   currentProblem: MathProblem | null;
   gameId: string | null;
@@ -28,6 +30,8 @@ export const useMathGame = () => {
     username: null,
     highScore: 0,
     currentScore: 0,
+    totalAnswered: 0,
+    totalCorrect: 0,
     timeRemaining: GAME_DURATION_SECONDS,
     currentProblem: null,
     gameId: null,
@@ -90,6 +94,8 @@ export const useMathGame = () => {
         currentProblem: data.problem,
         gameId: data.gameId,
         currentScore: 0,
+        totalAnswered: 0,
+        totalCorrect: 0,
         timeRemaining: GAME_DURATION_SECONDS,
         loading: false,
         isNewHighScore: false,
@@ -177,6 +183,8 @@ export const useMathGame = () => {
       setState(prev => ({
         ...prev,
         currentScore: data.score,
+        totalAnswered: prev.totalAnswered + 1,
+        totalCorrect: prev.totalCorrect + (data.correct ? 1 : 0),
         currentProblem: data.nextProblem,
         timeRemaining: Math.ceil(data.timeRemaining / 1000),
       }));
@@ -253,6 +261,8 @@ export const useMathGame = () => {
       ...prev,
       gameState: 'menu',
       currentScore: 0,
+      totalAnswered: 0,
+      totalCorrect: 0,
       timeRemaining: GAME_DURATION_SECONDS,
       currentProblem: null,
       gameId: null,

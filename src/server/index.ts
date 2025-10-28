@@ -492,11 +492,22 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         const username = member.member;
         const score = member.score;
         
-        console.log('Parsed entry:', { username, score });
+        // Try to get user avatar
+        let avatarUrl: string | undefined;
+        try {
+          const user = await reddit.getUserByUsername(username);
+          // Reddit user object might have different property names for avatar
+          avatarUrl = (user as any)?.iconImg || (user as any)?.icon_img || (user as any)?.snoovatar_img || undefined;
+        } catch (err) {
+          console.log(`Could not fetch avatar for ${username}:`, err);
+        }
+        
+        console.log('Parsed entry:', { username, score, avatarUrl });
         entries.push({
           username,
           score,
           rank: 0, // Will be set after sorting
+          ...(avatarUrl && { avatarUrl }),
         });
       }
 

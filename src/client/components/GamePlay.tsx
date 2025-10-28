@@ -133,10 +133,11 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
   if (!game.currentProblem) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
+      <div className="min-h-screen flex items-center justify-center bg-[#021013]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <div className="loader-container">
+            <div className="loader text-white mb-4"></div>
+          </div>
         </div>
       </div>
     );
