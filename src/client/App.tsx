@@ -19,7 +19,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {game.gameState === 'start' && <StartPage onStart={game.startGame} />}
+      {(game.gameState === 'start' || game.gameState === 'menu') && <StartPage onStart={game.startGame} />}
       {game.gameState === 'playing' && <GamePlay game={game} />}
       {game.gameState === 'finished' && <GameResults game={game} />}
     </div>
