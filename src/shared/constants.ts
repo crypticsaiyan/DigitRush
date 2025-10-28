@@ -1,5 +1,5 @@
 // Game configuration constants
-export const GAME_DURATION_SECONDS = 30;
+export const GAME_DURATION_SECONDS = 60;
 export const GAME_DURATION_MS = GAME_DURATION_SECONDS * 1000;
 
 // Warning threshold for low time (in seconds)

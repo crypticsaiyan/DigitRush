@@ -21,7 +21,6 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
         const data: LeaderboardResponse = await res.json();
         setLeaderboard(data);
       } catch (err) {
-        console.error('Failed to fetch leaderboard', err);
       } finally {
         setLoading(false);
       }

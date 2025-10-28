@@ -42,7 +42,6 @@ export const StartPage = ({ onStart }: StartPageProps) => {
           setTopScore(null);
         }
       } catch (err) {
-        console.error('Failed to fetch top score', err);
         setTopScore(null);
       } finally {
         setLoadingTopScore(false);

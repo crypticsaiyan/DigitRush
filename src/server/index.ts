@@ -92,7 +92,7 @@ function generateMathProblem(): MathProblem {
     case 'division':
       // Create divisors from 1-10 and also include 11
       const divisors = [...Array.from({ length: 10 }, (_, i) => i + 1), 11]; // [1,2,3,4,5,6,7,8,9,10,11]
-      num2 = divisors[getRandomInt(0, divisors.length - 1)];
+  num2 = divisors[getRandomInt(0, divisors.length - 1)]!;
 
       // For divisor 11, use range 100-1000; for others use 1-100
       if (num2 === 11) {
@@ -134,7 +134,6 @@ router.get<{ postId: string }, InitResponse | { status: string; message: string 
     const { postId } = context;
 
     if (!postId) {
-      console.error('API Init Error: postId not found in devvit context');
       res.status(400).json({
         status: 'error',
         message: 'postId is required but missing from context',
@@ -155,7 +154,6 @@ router.get<{ postId: string }, InitResponse | { status: string; message: string 
         username: username ?? 'anonymous',
       });
     } catch (error) {
-      console.error(`API Init Error for post ${postId}:`, error);
       let errorMessage = 'Unknown error during initialization';
       if (error instanceof Error) {
         errorMessage = `Initialization failed: ${error.message}`;
@@ -231,7 +229,6 @@ router.get<{ postId: string }, GameInitResponse | { status: string; message: str
         highScore: highScoreStr ? parseInt(highScoreStr) : 0,
       });
     } catch (error) {
-      console.error(`Game Init Error for post ${postId}:`, error);
       res.status(400).json({ status: 'error', message: 'Game initialization failed' });
     }
   }
@@ -251,8 +248,7 @@ router.post<{ postId: string }, GameStartResponse | { status: string; message: s
 
     try {
       const gameId = `${postId}_${Date.now()}`;
-      const firstProblem = generateMathProblem();
-      console.log('Generated first problem:', firstProblem);
+  const firstProblem = generateMathProblem();
 
       // Store game state in Redis
       await saveGameState(gameId, {
@@ -267,7 +263,6 @@ router.post<{ postId: string }, GameStartResponse | { status: string; message: s
         gameId,
       });
     } catch (error) {
-      console.error(`Game Start Error:`, error);
       res.status(400).json({ status: 'error', message: 'Failed to start game' });
     }
   }
@@ -281,10 +276,7 @@ router.post<
   const { postId } = context;
   const { gameId, answer, problemId } = req.body;
 
-  console.log('Answer request received:', { postId, gameId, answer, problemId, body: req.body });
-
   if (!postId || !gameId || answer === undefined || !problemId) {
-    console.error('Missing required fields:', { postId, gameId, answer, problemId });
     res.status(400).json({
       status: 'error',
       message: 'Missing required fields',
@@ -294,10 +286,8 @@ router.post<
 
   try {
     const gameState = await getGameState(gameId);
-    console.log('Game state found:', gameState ? 'yes' : 'no');
 
     if (!gameState) {
-      console.error('Game not found:', gameId);
       res.status(400).json({
         status: 'error',
         message: 'Game not found',
@@ -306,10 +296,7 @@ router.post<
     }
 
     const currentProblem = gameState.currentProblem;
-    console.log('Current problem:', currentProblem);
-
     if (!currentProblem) {
-      console.error('Problem not found');
       res.status(400).json({
         status: 'error',
         message: 'Problem not found',
@@ -318,18 +305,11 @@ router.post<
     }
 
     const timeElapsed = Date.now() - gameState.startTime;
-    const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
-    console.log('Time remaining:', timeRemaining);
+  const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
 
     // Allow one final answer submission even if time has expired
     // The game will be ended by the client via the /end endpoint
     const correct = currentProblem.answer === answer;
-    console.log('Answer check:', {
-      userAnswer: answer,
-      correctAnswer: currentProblem.answer,
-      correct,
-      timeRemaining,
-    });
 
     if (correct) {
       gameState.score++;
@@ -337,8 +317,7 @@ router.post<
 
     let nextProblem: MathProblem | null = null;
     if (timeRemaining > 0) {
-      nextProblem = generateMathProblem();
-      console.log('Generated new problem:', nextProblem);
+  nextProblem = generateMathProblem();
 
       // Update game state with new problem
       await saveGameState(gameId, {
@@ -348,7 +327,6 @@ router.post<
       });
     } else {
       // Time is up, but save the final score
-      console.log('Time is up, saving final score:', gameState.score);
       await saveGameState(gameId, {
         startTime: gameState.startTime,
         score: gameState.score,
@@ -356,12 +334,6 @@ router.post<
       });
     }
 
-    console.log('Sending response:', {
-      correct,
-      nextProblem,
-      score: gameState.score,
-      timeRemaining,
-    });
 
     res.json({
       type: 'game-answer',
@@ -371,7 +343,6 @@ router.post<
       timeRemaining,
     });
   } catch (error) {
-    console.error(`Game Answer Error:`, error);
     res.status(500).json({ status: 'error', message: 'Failed to process answer' });
   }
 });
@@ -384,10 +355,7 @@ router.post<
   const { postId } = context;
   const { gameId } = req.body;
 
-  console.log('Game end request received:', { postId, gameId });
-
   if (!postId || !gameId) {
-    console.error('Missing required fields for game end');
     res.status(400).json({
       status: 'error',
       message: 'Missing required fields',
@@ -396,13 +364,11 @@ router.post<
   }
 
   try {
-    const gameState = await getGameState(gameId);
-    console.log('Game state for ending:', gameState);
+  const gameState = await getGameState(gameId);
 
     // If game state doesn't exist, it might have already been cleaned up
     // Return a graceful response with score 0
     if (!gameState) {
-      console.log('Game state not found, returning default values');
       const username = await reddit.getCurrentUsername();
       const highScoreKey = username ? `highscore:${postId}:${username}` : null;
       const currentHighScoreStr = highScoreKey ? await redis.get(highScoreKey) : null;
@@ -441,11 +407,7 @@ router.post<
     // (username already fetched above)
     if (username && finalScore > 0) {
       const leaderboardSetKey = `leaderboard_set:${postId}`;
-      console.log('Considering saving to leaderboard:', {
-        username,
-        finalScore,
-        key: leaderboardSetKey,
-      });
+      
 
       try {
         // Check existing score for this user
@@ -454,14 +416,9 @@ router.post<
         // If no existing score or this score is higher, update the sorted set
         if (existingScore == null || finalScore > existingScore) {
           await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
-          console.log('Score saved to leaderboard (new high or first entry)');
         } else {
-          console.log('Not saving to leaderboard; existing score is higher or equal', {
-            existingScore,
-          });
         }
       } catch (err) {
-        console.error('Failed to update leaderboard:', err);
       }
     }
 
@@ -471,8 +428,7 @@ router.post<
       highScore,
       isNewHighScore,
     });
-  } catch (error) {
-    console.error(`Game End Error:`, error);
+    } catch (error) {
     res.status(400).json({ status: 'error', message: 'Failed to end game' });
   }
 });
@@ -493,18 +449,16 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
 
     try {
       const currentUsername = await reddit.getCurrentUsername();
-      console.log('Fetching leaderboard for postId:', postId);
+      
 
       // Get all leaderboard entries for this post
       const entries: LeaderboardEntry[] = [];
 
       // Use sorted set to store leaderboard
-      const leaderboardSetKey = `leaderboard_set:${postId}`;
-      console.log('Leaderboard key:', leaderboardSetKey);
+  const leaderboardSetKey = `leaderboard_set:${postId}`;
 
       // Get all members from sorted set (sorted by score, highest first)
-      const members = await redis.zRange(leaderboardSetKey, 0, -1, { by: 'rank', reverse: true });
-      console.log('Retrieved members:', members);
+  const members = await redis.zRange(leaderboardSetKey, 0, -1, { by: 'rank', reverse: true });
 
       // Helper: default redditstatic avatar from username (stable)
       const defaultAvatarFromUsername = (name: string) => {
@@ -528,7 +482,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           // Call via the reddit object to preserve 'this' binding used internally
           if (typeof (reddit as any).getSnoovatarUrl === 'function') {
             const url = await (reddit as any).getSnoovatarUrl(username);
-            console.log(`getSnoovatarUrl(${username}) =>`, url);
             if (typeof url === 'string' && url.length > 0) {
               avatarUrl = url;
             }
@@ -544,7 +497,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
               undefined;
           }
         } catch (err) {
-          console.log(`Could not fetch avatar for ${username}:`, err);
         }
 
         // Final fallback to redditstatic default if still missing
@@ -552,7 +504,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           avatarUrl = defaultAvatarFromUsername(username);
         }
 
-        console.log('Parsed entry:', { username, score, avatarUrl });
         entries.push({
           username,
           score,
@@ -560,8 +511,7 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           avatarUrl,
         });
       }
-
-      console.log('Total entries:', entries.length);
+      
 
       // Sort by score descending (in case Redis didn't sort properly)
       entries.sort((a, b) => b.score - a.score);
@@ -588,13 +538,12 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         } else {
           // Compute avatar for current user (not necessarily in top entries)
           try {
-            if (typeof (reddit as any).getSnoovatarUrl === 'function') {
-              const url = await (reddit as any).getSnoovatarUrl(currentUsername);
-              console.log(`getSnoovatarUrl(${currentUsername}) =>`, url);
-              if (typeof url === 'string' && url.length > 0) {
-                userAvatarUrl = url;
-              }
-            }
+                  if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+                  const url = await (reddit as any).getSnoovatarUrl(currentUsername);
+                  if (typeof url === 'string' && url.length > 0) {
+                      userAvatarUrl = url;
+                    }
+                  }
 
             if (!userAvatarUrl) {
               const user = await reddit.getUserByUsername(currentUsername);
@@ -605,7 +554,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
                 undefined;
             }
           } catch (err) {
-            console.log(`Could not fetch avatar for current user ${currentUsername}:`, err);
           }
 
           if (!userAvatarUrl) {
@@ -614,14 +562,7 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         }
       }
 
-      console.log('Sending leaderboard response:', {
-        topEntries,
-        userRank,
-        userScore,
-        userUsername,
-        userAvatarUrl,
-      });
-
+      
       res.json({
         type: 'leaderboard',
         entries: topEntries,
@@ -631,7 +572,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         userAvatarUrl: userAvatarUrl ?? null,
       });
     } catch (error) {
-      console.error(`Leaderboard Error:`, error);
       res.status(400).json({ status: 'error', message: 'Failed to fetch leaderboard' });
     }
   }
@@ -646,7 +586,6 @@ router.post('/internal/on-app-install', async (_req, res): Promise<void> => {
       message: `Post created in subreddit ${context.subredditName} with id ${post.id}`,
     });
   } catch (error) {
-    console.error(`Error creating post: ${error}`);
     res.status(400).json({
       status: 'error',
       message: 'Failed to create post',
@@ -662,7 +601,6 @@ router.post('/internal/menu/post-create', async (_req, res): Promise<void> => {
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`,
     });
   } catch (error) {
-    console.error(`Error creating post: ${error}`);
     res.status(400).json({
       status: 'error',
       message: 'Failed to create post',
@@ -677,5 +615,5 @@ app.use(router);
 const port = getServerPort();
 
 const server = createServer(app);
-server.on('error', (err) => console.error(`server error; ${err.stack}`));
+server.on('error', (_err) => {});
 server.listen(port);

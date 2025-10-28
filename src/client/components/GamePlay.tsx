@@ -68,7 +68,6 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     if (game.timeRemaining === 0 && userAnswer.trim() && !hasSubmittedFinalAnswer && !isSubmitting && game.currentProblem) {
       const answer = parseInt(userAnswer);
       if (!isNaN(answer)) {
-        console.log('Submitting final answer before game ends:', answer);
         setHasSubmittedFinalAnswer(true);
         game.submitFinalAnswer(answer);
       }

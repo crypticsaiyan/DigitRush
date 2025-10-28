@@ -13,7 +13,7 @@ export const createPost = async () => {
       appDisplayName: 'DigitRush',
       backgroundUri: 'default-splash.png',
       buttonLabel: 'Tap to Start',
-      description: `Test your math skills in ${GAME_DURATION_SECONDS} seconds!`,
+      description: `Test your math skills in ${GAME_DURATION_SECONDS}s`,
       // 'entry' is the expected property name for the web entry path
       entry: 'index.html',
       heading: 'DigitRush - Math Quiz Challenge',

@@ -7,13 +7,7 @@ export const App: React.FC = () => {
   const assetLoader = useAssetPreloader();
   const game = useMathGame();
 
-  // Debug logging
-  console.log(
-    'App render - assetLoader.isLoading:',
-    assetLoader.isLoading,
-    'game.loading:',
-    game.loading
-  );
+  // Debug logging removed in production
 
   // Show loading screen while assets are loading or game data is loading
   if (assetLoader.isLoading || game.loading) {

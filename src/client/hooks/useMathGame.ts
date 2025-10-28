@@ -60,7 +60,6 @@ export const useMathGame = () => {
         }));
         setPostId(data.postId);
       } catch (err) {
-        console.error('Failed to init game', err);
         setState(prev => ({ ...prev, loading: false }));
       }
     };
@@ -70,7 +69,6 @@ export const useMathGame = () => {
   // Start game
   const startGame = useCallback(async () => {
     if (!postId) {
-      console.error('No postId – cannot start game');
       return;
     }
 
@@ -117,7 +115,6 @@ export const useMathGame = () => {
       
       setGameTimer(timer);
     } catch (err) {
-      console.error('Failed to start game', err);
       setState(prev => ({ ...prev, loading: false }));
     }
   }, [postId]);
@@ -125,13 +122,11 @@ export const useMathGame = () => {
   // Submit answer
   const submitAnswer = useCallback(async (answer: number, isLastAnswer: boolean = false) => {
     if (!state.gameId || !state.currentProblem) {
-      console.error('No active game or problem');
       return;
     }
 
     // Allow submission of last answer even if time is 0
     if (state.timeRemaining <= 0 && !isLastAnswer) {
-      console.log('Time expired, skipping answer submission');
       return;
     }
 
@@ -139,12 +134,6 @@ export const useMathGame = () => {
     isSubmittingRef.current = true;
 
     try {
-      console.log('Submitting answer:', {
-        gameId: state.gameId,
-        answer,
-        problemId: state.currentProblem.id,
-        isLastAnswer,
-      });
 
       const res = await fetch('/api/game/answer', {
         method: 'POST',
@@ -158,7 +147,6 @@ export const useMathGame = () => {
       
       if (!res.ok) {
         const errorData = await res.json();
-        console.error('Server error response:', errorData);
         
         // If game expired, trigger end game
         if (errorData.message === 'Game time expired') {
@@ -177,8 +165,7 @@ export const useMathGame = () => {
       
       if (data.type !== 'game-answer') throw new Error('Unexpected response');
       
-      console.log('Received answer response:', data);
-      console.log('Next problem:', data.nextProblem);
+      
       
       setState(prev => ({
         ...prev,
@@ -198,7 +185,6 @@ export const useMathGame = () => {
         await endGame();
       }
     } catch (err) {
-      console.error('Failed to submit answer', err);
     } finally {
       // Mark that we're done submitting
       isSubmittingRef.current = false;
@@ -208,7 +194,6 @@ export const useMathGame = () => {
   // End game
   const endGame = useCallback(async () => {
     if (!state.gameId) {
-      console.error('No active game');
       return;
     }
 
@@ -238,7 +223,6 @@ export const useMathGame = () => {
         setGameTimer(null);
       }
     } catch (err) {
-      console.error('Failed to end game', err);
     }
   }, [state.gameId, gameTimer]);
 
@@ -275,17 +259,15 @@ export const useMathGame = () => {
     if (state.timeRemaining === 0 && state.gameState === 'playing' && state.gameId) {
       // If there's an active submission, wait for it to complete
       if (isSubmittingRef.current) {
-        console.log('Waiting for submission to complete before ending game');
+        
         // Check again after a short delay
         const checkTimer = setTimeout(() => {
           if (!isSubmittingRef.current && state.gameState === 'playing' && state.gameId) {
-            console.log('Submission complete, ending game now');
             endGame();
           }
         }, 500);
         return () => clearTimeout(checkTimer);
       } else {
-        console.log('Time ran out, ending game');
         endGame();
       }
     }

@@ -15,11 +15,9 @@ export const useAssetPreloader = () => {
 
   useEffect(() => {
     const preloadAssets = async () => {
-      console.log('Starting asset preloading...');
       
       // Timeout fallback to prevent infinite loading
       const timeoutId = setTimeout(() => {
-        console.log('Asset preloading timeout - proceeding anyway');
         setState({
           isLoading: false,
           progress: 100,
@@ -51,7 +49,7 @@ export const useAssetPreloader = () => {
         const updateProgress = () => {
           loadedCount++;
           const progress = Math.round((loadedCount / allAssets.length) * 100);
-          console.log(`Asset loading progress: ${progress}% (${loadedCount}/${allAssets.length})`);
+          
           setState((prev) => ({ ...prev, progress }));
         };
 
@@ -60,12 +58,10 @@ export const useAssetPreloader = () => {
           return new Promise<void>((resolve) => {
             const img = new Image();
             img.onload = () => {
-              console.log(`Successfully loaded image: ${src}`);
               updateProgress();
               resolve();
             };
-            img.onerror = (error) => {
-              console.warn(`Failed to load image: ${src}`, error);
+            img.onerror = (_error) => {
               updateProgress(); // Still count as "loaded" to prevent hanging
               resolve();
             };
@@ -81,11 +77,9 @@ export const useAssetPreloader = () => {
               const fontFace = new FontFace(family, `url(${url})`);
               fontFace.load().then(() => {
                 (document.fonts as any).add(fontFace);
-                console.log(`Successfully loaded font: ${family}`);
                 updateProgress();
                 resolve();
-              }).catch((error) => {
-                console.warn(`Failed to load font: ${family}`, error);
+              }).catch((_error) => {
                 updateProgress();
                 resolve();
               });
@@ -99,13 +93,11 @@ export const useAssetPreloader = () => {
               link.href = url;
               
               link.onload = () => {
-                console.log(`Successfully preloaded font: ${family}`);
                 updateProgress();
                 resolve();
               };
-              
+
               link.onerror = () => {
-                console.warn(`Failed to preload font: ${family}`);
                 updateProgress();
                 resolve();
               };
@@ -118,8 +110,7 @@ export const useAssetPreloader = () => {
         // Wait for all assets to load
         await Promise.all([...imagePromises, ...fontPromises]);
 
-        console.log('All assets loaded, finishing...');
-        clearTimeout(timeoutId); // Clear timeout since we finished successfully
+  clearTimeout(timeoutId); // Clear timeout since we finished successfully
         
         // Small delay to ensure smooth transition
         setTimeout(() => {
@@ -128,16 +119,14 @@ export const useAssetPreloader = () => {
             progress: 100,
             error: null,
           });
-          console.log('Asset preloading complete');
         }, 300);
       } catch (error) {
-        console.error('Error preloading assets:', error);
-        clearTimeout(timeoutId);
         setState({
           isLoading: false,
           progress: 100,
           error: 'Failed to load some assets',
         });
+        clearTimeout(timeoutId);
       }
     };
 
