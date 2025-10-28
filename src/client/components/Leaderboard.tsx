@@ -42,7 +42,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
           <img src="/images/trophy.gif" alt="Trophy" className="w-10 h-10 sm:w-12 sm:h-12" />
         )}
         <h2 className="text-2xl sm:text-3xl font-bold text-[#86f6b1] flex items-center gap-3">
-          <span className="text-2xl md:text-3xl">Leaderboard</span>
+          <span className="text-3xl md:text-4xl test-white">Leaderboard</span>
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
         </h2>
       </div>

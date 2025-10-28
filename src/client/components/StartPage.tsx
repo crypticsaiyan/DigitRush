@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Leaderboard } from './Leaderboard';
+import type { LeaderboardResponse } from '../../shared/types/api';
 
 interface StartPageProps {
   onStart: () => void;
@@ -8,6 +9,8 @@ interface StartPageProps {
 export const StartPage = ({ onStart }: StartPageProps) => {
   const [showHow, setShowHow] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [topScore, setTopScore] = useState<number | null>(null);
+  const [loadingTopScore, setLoadingTopScore] = useState<boolean>(false);
 
   // Prevent background page from scrolling while modal is open
   useEffect(() => {
@@ -21,6 +24,33 @@ export const StartPage = ({ onStart }: StartPageProps) => {
     }
     return;
   }, [showHow, showLeaderboard]);
+
+  // Fetch top score for quick display in the leaderboard button
+  useEffect(() => {
+    const fetchTopScore = async () => {
+      try {
+        setLoadingTopScore(true);
+        const res = await fetch('/api/leaderboard');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: LeaderboardResponse = await res.json();
+        if (data && Array.isArray(data.entries) && data.entries.length > 0) {
+          // Prefer rank 1 if provided, else compute max defensively
+          const rankOne = data.entries.find(e => e.rank === 1);
+          const maxScore = rankOne?.score ?? data.entries.reduce((m, e) => Math.max(m, e.score), 0);
+          setTopScore(maxScore);
+        } else {
+          setTopScore(null);
+        }
+      } catch (err) {
+        console.error('Failed to fetch top score', err);
+        setTopScore(null);
+      } finally {
+        setLoadingTopScore(false);
+      }
+    };
+
+    fetchTopScore();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
@@ -41,7 +71,9 @@ export const StartPage = ({ onStart }: StartPageProps) => {
 
             <div className="hidden sm:flex flex-col leading-tight text-left">
               <span className="text-2xl text-white/90 font-semibold">Leaderboard</span>
-              <span className="text-xl text-white/60">Top score: —</span>
+              <span className="text-xl text-white/60">
+                Top score: {loadingTopScore ? '…' : topScore ?? '—'}
+              </span>
             </div>
 
             {/* chevron */}
@@ -64,7 +96,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               <h1 className="font-heading text-4xl md:text-5xl font-extrabold mb-6 text-[#86f6b1]">
                 DigitRush
               </h1>
-              <p className="mt-4 text-gray-200 text-lg max-w-2xl font-body">
+              <p className="mt-4 text-gray-200 text-lg max-w-xl lg:max-w-2xl font-body">
                 Train your mental math, race the clock, and climb the leaderboard. Quick rounds —
                 big fun. Ready to beat your high score?
               </p>

@@ -27,19 +27,28 @@ export const GameResults = ({ game }: GameResultsProps) => {
   }, [showLeaderboard]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
-      <main className="w-full max-w-3xl mx-auto">
+    <div className="min-h-screen sm:h-screen flex items-center justify-center p-6 bg-[#021013]">
+      <main className="w-full max-w-3xl mx-auto sm:h-full sm:flex sm:items-stretch">
         {/* Results Card - hero style */}
-        <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-6 md:p-8 shadow-lg">
+        <section className="relative bg-[#06282a] border border-[#122e2a] rounded-2xl p-6 sm:p-8 shadow-lg sm:flex sm:flex-col sm:h-full">
+          {/* Leaderboard icon button (like StartPage) inside the main box */}
+          <button
+            aria-label="Open leaderboard"
+            onClick={() => setShowLeaderboard(true)}
+            title="Leaderboard"
+            className="absolute top-4 right-4 p-0 hover:scale-105 transition-transform focus:outline-none"
+          >
+            <img src="/images/trophy.gif" alt="Trophy" className="w-8 h-8 sm:w-10 sm:h-10" />
+          </button>
           <div className="text-center">
-            <h1 className="font-heading text-3xl md:text-4xl text-[#86f6b1] font-extrabold flex flex-col items-center justify-center gap-6">
+            <h1 className="font-heading text-3xl sm:text-4xl text-[#86f6b1] font-extrabold flex flex-col items-center justify-center gap-6">
               Time's Up!
             </h1>
             <p className="mt-3 text-gray-300 text-2xl">Here's how you did:</p>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-1">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:flex-1">
+            <div className="sm:col-span-1">
               {game.isNewHighScore && (
                 <div className="bg-[#16a085]/20 border-2 border-[#16a085] rounded-lg p-4 mb-4 animate-pulse">
                   <br />
@@ -54,18 +63,19 @@ export const GameResults = ({ game }: GameResultsProps) => {
 
               <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-lg p-6 mb-4 text-center shadow-md">
                 <h3 className="text-2xl font-semibold text-[#86f6b1] mb-2">Your Score</h3>
-                <p className={`text-5xl md:text-6xl font-extrabold mb-2 ${getScoreColor()}`}>
+                <p className={`text-5xl sm:text-6xl font-extrabold mb-2 ${getScoreColor()}`}>
                   {game.currentScore}
                 </p>
                 <p className="text-gray-300">problems solved</p>
               </div>
+              
             </div>
 
-            <div className="md:col-span-1 space-y-4">
+            <div className="sm:col-span-1 space-y-4">
               <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4">
                 <div className="flex items-center justify-between whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <img src="/images/trophy.gif" alt="Trophy" className="w-10" />
+                    <img src="/images/gold.png" alt="Gold" className="w-10" />
                     <span className="text-lg font-semibold text-[#86f6b1]">High Score</span>
                   </div>
                   <span className="text-2xl font-bold text-[#86f6b1]">{game.highScore}</span>
@@ -99,7 +109,7 @@ export const GameResults = ({ game }: GameResultsProps) => {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col items-center gap-3">
+          <div className="mt-6 sm:mt-auto flex flex-col items-center gap-3">
             <button
               onClick={game.startGame}
               disabled={game.loading}
@@ -116,26 +126,7 @@ export const GameResults = ({ game }: GameResultsProps) => {
             </button>
           </div>
 
-          {/* Leaderboard block button at the bottom */}
-          <button
-            aria-label="Open leaderboard"
-            onClick={() => setShowLeaderboard(true)}
-            className="mt-4 w-full flex items-center justify-center gap-3 bg-[#ffd166]/10 hover:bg-[#ffd166]/20 border border-[#ffd166]/30 hover:border-[#ffd166]/50 text-white px-4 py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-            title="View Leaderboard"
-          >
-            <img src="/images/trophy.gif" alt="Trophy" className="w-6 h-6" />
-            <span className="text-lg font-semibold">View Leaderboard</span>
-            <svg
-              className="w-4 h-4 text-white/80 ml-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          
         </section>
 
         {/* Leaderboard modal */}

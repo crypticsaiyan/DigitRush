@@ -148,9 +148,9 @@ export const GamePlay = ({ game }: GamePlayProps) => {
       {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
-        <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg">
+        <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg min-h-[60vh] flex flex-col items-center justify-center">
           {/* Top bar with score (left) and time+progress (right) */}
-          <div className="flex items-center justify-between mb-8 gap-4">
+          <div className="flex items-center justify-between mb-8 gap-4 w-full">
             {/* Score - Top Left */}
             <div className="flex-shrink-0">
               <div className="font-mono text-3xl md:text-4xl font-bold text-[#86f6b1]">
