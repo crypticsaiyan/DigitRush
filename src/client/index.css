@@ -64,9 +64,13 @@ body {
 
 /* Prevent zoom on input focus on iOS and remove native number input arrows */
 input[type='number'] {
-  font-size: 16px;
   -moz-appearance: textfield; /* Firefox */
   appearance: textfield;
+}
+
+/* Allow Tailwind classes to override the default font-size */
+input[type='number'].font-mono {
+  font-size: inherit !important;
 }
 
 /* Remove spinner arrows in WebKit browsers (Chrome, Safari, Edge) */
@@ -161,7 +165,7 @@ input[type='number']::-webkit-inner-spin-button {
 .loader::before {
   content: 'Loading';
   font-family: 'medodicaregular';
-  font-size: 30px;
+  font-size: 25px;
   color: #00bf63;
 }
 

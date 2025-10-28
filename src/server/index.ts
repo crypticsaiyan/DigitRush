@@ -312,21 +312,14 @@ router.post<
   const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
     console.log('Time remaining:', timeRemaining);
 
-    if (timeRemaining <= 0) {
-      console.log('Game time expired');
-      await deleteGameState(gameId);
-      res.status(400).json({
-        status: 'error',
-        message: 'Game time expired',
-      });
-      return;
-    }
-
+    // Allow one final answer submission even if time has expired
+    // The game will be ended by the client via the /end endpoint
     const correct = currentProblem.answer === answer;
     console.log('Answer check:', {
       userAnswer: answer,
       correctAnswer: currentProblem.answer,
       correct,
+      timeRemaining,
     });
 
     if (correct) {
@@ -343,6 +336,14 @@ router.post<
         startTime: gameState.startTime,
         score: gameState.score,
         currentProblem: nextProblem,
+      });
+    } else {
+      // Time is up, but save the final score
+      console.log('Time is up, saving final score:', gameState.score);
+      await saveGameState(gameId, {
+        startTime: gameState.startTime,
+        score: gameState.score,
+        currentProblem: currentProblem, // Keep current problem for consistency
       });
     }
 
@@ -388,10 +389,20 @@ router.post<
   try {
     const gameState = await getGameState(gameId);
     console.log('Game state for ending:', gameState);
+    
+    // If game state doesn't exist, it might have already been cleaned up
+    // Return a graceful response with score 0
     if (!gameState) {
-      res.status(400).json({
-        status: 'error',
-        message: 'Game not found',
+      console.log('Game state not found, returning default values');
+      const highScoreKey = `highscore:${postId}`;
+      const currentHighScoreStr = await redis.get(highScoreKey);
+      const highScore = currentHighScoreStr ? parseInt(currentHighScoreStr) : 0;
+      
+      res.json({
+        type: 'game-end',
+        finalScore: 0,
+        highScore: highScore,
+        isNewHighScore: false,
       });
       return;
     }

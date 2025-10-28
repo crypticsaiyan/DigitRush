@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import type { 
   GameInitResponse, 
   GameStartResponse, 
@@ -37,6 +37,7 @@ export const useMathGame = () => {
 
   const [postId, setPostId] = useState<string | null>(null);
   const [gameTimer, setGameTimer] = useState<NodeJS.Timeout | null>(null);
+  const isSubmittingRef = useRef(false);
 
   // Initialize game
   useEffect(() => {
@@ -116,17 +117,27 @@ export const useMathGame = () => {
   }, [postId]);
 
   // Submit answer
-  const submitAnswer = useCallback(async (answer: number) => {
+  const submitAnswer = useCallback(async (answer: number, isLastAnswer: boolean = false) => {
     if (!state.gameId || !state.currentProblem) {
       console.error('No active game or problem');
       return;
     }
+
+    // Allow submission of last answer even if time is 0
+    if (state.timeRemaining <= 0 && !isLastAnswer) {
+      console.log('Time expired, skipping answer submission');
+      return;
+    }
+
+    // Mark that we're submitting
+    isSubmittingRef.current = true;
 
     try {
       console.log('Submitting answer:', {
         gameId: state.gameId,
         answer,
         problemId: state.currentProblem.id,
+        isLastAnswer,
       });
 
       const res = await fetch('/api/game/answer', {
@@ -142,6 +153,17 @@ export const useMathGame = () => {
       if (!res.ok) {
         const errorData = await res.json();
         console.error('Server error response:', errorData);
+        
+        // If game expired, trigger end game
+        if (errorData.message === 'Game time expired') {
+          if (gameTimer) {
+            clearInterval(gameTimer);
+            setGameTimer(null);
+          }
+          setState(prev => ({ ...prev, timeRemaining: 0 }));
+          return;
+        }
+        
         throw new Error(`HTTP ${res.status}: ${errorData.message || 'Unknown error'}`);
       }
       
@@ -169,8 +191,11 @@ export const useMathGame = () => {
       }
     } catch (err) {
       console.error('Failed to submit answer', err);
+    } finally {
+      // Mark that we're done submitting
+      isSubmittingRef.current = false;
     }
-  }, [state.gameId, state.currentProblem, gameTimer]);
+  }, [state.gameId, state.currentProblem, state.timeRemaining, gameTimer]);
 
   // End game
   const endGame = useCallback(async () => {
@@ -238,8 +263,21 @@ export const useMathGame = () => {
   // End game when time runs out
   useEffect(() => {
     if (state.timeRemaining === 0 && state.gameState === 'playing' && state.gameId) {
-      console.log('Time ran out, ending game');
-      endGame();
+      // If there's an active submission, wait for it to complete
+      if (isSubmittingRef.current) {
+        console.log('Waiting for submission to complete before ending game');
+        // Check again after a short delay
+        const checkTimer = setTimeout(() => {
+          if (!isSubmittingRef.current && state.gameState === 'playing' && state.gameId) {
+            console.log('Submission complete, ending game now');
+            endGame();
+          }
+        }, 500);
+        return () => clearTimeout(checkTimer);
+      } else {
+        console.log('Time ran out, ending game');
+        endGame();
+      }
     }
   }, [state.timeRemaining, state.gameState, state.gameId, endGame]);
 
@@ -256,6 +294,7 @@ export const useMathGame = () => {
     ...state,
     startGame,
     submitAnswer,
+    submitFinalAnswer: (answer: number) => submitAnswer(answer, true),
     endGame,
     goToMenu,
     resetToMenu,
