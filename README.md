@@ -7,7 +7,7 @@ A compact, Reddit-embedded math quiz (Devvit) that gives players a short timed r
 1. Clone and install
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/crypticsaiyan/DigitRush.git
 cd DigitRush
 npm ci
 ```
