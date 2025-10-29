@@ -272,3 +272,128 @@ input[type='number']::-webkit-inner-spin-button {
     left: calc(100% - 22px);
   }
 }
+
+/* Flat 2D retro toggle (pixel / arcade inspired, no 3D effects) */
+.retro-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'fffforwa', 'medodicaregular', monospace;
+}
+
+.retro-toggle__track {
+  --w: 44px; /* reduced width for smaller UI */
+  --h: 22px; /* reduced height */
+  width: var(--w);
+  height: var(--h);
+  border-radius: 3px; /* smaller radius for squarer, retro feel */
+  background: #0b342f; /* flat dark teal for OFF */
+  border: 2px solid #05221d; /* crisp outline */
+  padding: 2px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  transition: background-color 120ms linear, border-color 120ms linear;
+}
+
+.retro-toggle__track.on {
+  background: #00bf63; /* flat green for ON */
+  border-color: #006a45;
+}
+
+.retro-toggle__knob {
+  width: 16px; /* slightly smaller knob */
+  height: 16px;
+  border-radius: 2px; /* nearly square knob for retro aesthetic */
+  background: #cfeee0; /* muted teal instead of white */
+  border: 1px solid #05221d; /* thin outline for contrast */
+  transform: translateX(0);
+  transition: transform 120ms linear;
+  box-sizing: border-box;
+}
+
+.retro-toggle__track.on .retro-toggle__knob {
+  transform: translateX(22px); /* matches reduced width */
+}
+
+.retro-toggle__label {
+  color: #cfeee0;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-toggle__label .state {
+  font-family: 'medodicaregular';
+  font-size: 0.72rem;
+  color: #bdeccf;
+}
+
+/* Keep the checkbox accessible but visually hidden */
+.retro-toggle input[type='checkbox'].sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Remove visible highlight when toggling/focusing (requested).
+   Note: input remains accessible to screen readers and keyboard users, but
+   there is no visual outline when the control is focused. */
+.retro-toggle:focus-within .retro-toggle__track {
+  outline: none;
+}
+
+/* Square toggle variant matching user-provided design: outline when off, filled when on */
+.retro-square-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'medodicaregular', monospace;
+}
+
+.retro-square-toggle__box {
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 3px solid #86f6b1; /* thicker light outline */
+  background: transparent; /* outline state */
+  border-radius: 2px; /* small radius for slightly softened corners */
+  transition: background-color 120ms linear, border-color 120ms linear;
+}
+
+.retro-square-toggle__box.on {
+  background: #86f6b1; /* neon cyan - high contrast retro fill */
+  /* border-color intentionally unchanged to keep outline consistent */
+  border-width: 3px; /* keep border width consistent when on */
+}
+
+/* keep input accessible but visually hidden */
+.retro-square-toggle input[type='checkbox'].sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* remove visible focus highlight as requested, but keep the control keyboard-accessible */
+.retro-square-toggle:focus-within .retro-square-toggle__box {
+  outline: none;
+}
+

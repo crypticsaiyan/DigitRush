@@ -11,6 +11,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastProblemId, setLastProblemId] = useState<string | null>(null);
   const [hasSubmittedFinalAnswer, setHasSubmittedFinalAnswer] = useState(false);
+  const [autoSubmit, setAutoSubmit] = useState(true);
   const [feedback, setFeedback] = useState<{
     type: 'correct' | 'incorrect' | null;
     message: string;
@@ -63,16 +64,40 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     }
   }, [feedback.type]);
 
+  // Auto-submit when answer is correct and autoSubmit is enabled
+  useEffect(() => {
+    if (autoSubmit && userAnswer.trim() && game.currentProblem && !isSubmitting) {
+      const answer = parseInt(userAnswer);
+      if (!isNaN(answer) && answer === game.currentProblem.answer) {
+        // Automatically submit the correct answer
+        handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+      }
+    }
+  }, [userAnswer, autoSubmit, game.currentProblem, isSubmitting]);
+
   // Submit final answer when time runs out
   useEffect(() => {
-    if (game.timeRemaining === 0 && userAnswer.trim() && !hasSubmittedFinalAnswer && !isSubmitting && game.currentProblem) {
+    if (
+      game.timeRemaining === 0 &&
+      userAnswer.trim() &&
+      !hasSubmittedFinalAnswer &&
+      !isSubmitting &&
+      game.currentProblem
+    ) {
       const answer = parseInt(userAnswer);
       if (!isNaN(answer)) {
         setHasSubmittedFinalAnswer(true);
         game.submitFinalAnswer(answer);
       }
     }
-  }, [game.timeRemaining, userAnswer, hasSubmittedFinalAnswer, isSubmitting, game.currentProblem, game.submitFinalAnswer]);
+  }, [
+    game.timeRemaining,
+    userAnswer,
+    hasSubmittedFinalAnswer,
+    isSubmitting,
+    game.currentProblem,
+    game.submitFinalAnswer,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +109,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
     // Disable input immediately
     setIsSubmitting(true);
-    
+
     // Mark that we're submitting (to prevent final answer auto-submit)
     setHasSubmittedFinalAnswer(true);
 
@@ -103,26 +128,36 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Allow: backspace, delete, tab, escape, enter, and arrow keys
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-    
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'Escape',
+      'Enter',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+    ];
+
     // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
     if (e.ctrlKey || e.metaKey) {
       return;
     }
-    
+
     // Allow allowed keys
     if (allowedKeys.includes(e.key)) {
-      if (e.key === 'Enter' && !isSubmitting) {
+      if (e.key === 'Enter' && !isSubmitting && !autoSubmit) {
         handleSubmit(e as any);
       }
       return;
     }
-    
+
     // Allow numbers 0-9 and minus sign for negative numbers
     if ((e.key >= '0' && e.key <= '9') || e.key === '-') {
       return;
     }
-    
+
     // Prevent all other keys
     e.preventDefault();
   };
@@ -148,7 +183,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
         <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg min-h-[60vh] flex flex-col items-center justify-center">
-          {/* Top bar with score (left) and time+progress (right) */}
+          {/* Top bar with score (left), toggle (center) and time+progress (right) */}
           <div className="flex items-center justify-between mb-8 gap-4 w-full">
             {/* Score - Top Left */}
             <div className="flex-shrink-0">
@@ -157,6 +192,23 @@ export const GamePlay = ({ game }: GamePlayProps) => {
                 <span className="text-3xl md:text-4xl font-bold text-[#86f6b1]">
                   {game.currentScore}
                 </span>
+              </div>
+            </div>
+
+            {/* Center - Auto-submit toggle (moved to top center) */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="bg-transparent">
+                <label className="retro-square-toggle" aria-label="Auto-submit toggle" style={{ display: 'inline-flex' }}>
+                  <input
+                    type="checkbox"
+                    checked={autoSubmit}
+                    onChange={(e) => setAutoSubmit(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <span className={`retro-square-toggle__box ${autoSubmit ? 'on' : ''}`} aria-hidden />
+                  {/* Show text beside toggle on non-mobile devices */}
+                  <span className="hidden sm:inline ml-2 text-2xl font-semibold text-gray-200">Autosubmit</span>
+                </label>
               </div>
             </div>
 
@@ -181,6 +233,8 @@ export const GamePlay = ({ game }: GamePlayProps) => {
               </div>
             </div>
           </div>
+
+          {/* (toggle moved to top bar) */}
 
           {/* Problem centered */}
           <div className="mb-6 text-center">
@@ -212,17 +266,21 @@ export const GamePlay = ({ game }: GamePlayProps) => {
               />
               <button
                 type="submit"
-                disabled={!userAnswer.trim() || isSubmitting}
-                className="w-full sm:w-auto px-6 py-3 bg-[#00bf63] hover:bg-[#00a855] text-black font-bold text-2xl rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!userAnswer.trim() || isSubmitting || autoSubmit}
+                className="w-full sm:w-auto px-6 py-3 bg-[#00bf63] hover:bg-[#00a855] text-black font-bold text-2xl rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center sm:max-w-[160px] truncate"
               >
-                {isSubmitting ? 'Loading...' : 'Submit'}
+                {isSubmitting ? 'Loading...' : autoSubmit ? 'Auto On' : 'Submit'}
               </button>
             </div>
           </form>
 
           {/* Instructions */}
           <div className="text-center text-sm text-gray-400">
-            <p className="font-body">Type your answer and press Enter or click Submit</p>
+            <p className="font-body">
+              {autoSubmit
+                ? 'Type your answer - correct answers will auto-submit!'
+                : 'Type your answer and press Enter or click Submit'}
+            </p>
           </div>
         </section>
       </main>

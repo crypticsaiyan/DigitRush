@@ -201,8 +201,10 @@ export const StartPage = ({ onStart }: StartPageProps) => {
                 <div className="mt-4 text-2xl leading-relaxed">
                   <ol className="list-decimal list-inside space-y-3">
                     <li>Solve as many problems as you can while the timer runs.</li>
-                    <li>Correct answers increase your score and streak.</li>
                     <li>Check the leaderboard and compete with friends.</li>
+                    <li>
+                      Toggle Auto-submit mode to auto-submit answers (disables manual submission).
+                    </li>
                   </ol>
                 </div>
 
