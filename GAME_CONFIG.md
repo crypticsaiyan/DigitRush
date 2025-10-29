@@ -10,17 +10,17 @@ src/shared/constants.ts
 ```
 
 ### Current Settings
-- **Game Duration**: 30 seconds
+- **Game Duration**: 1 second (Lightning Mode - extreme difficulty)
 - **Low Time Warning Threshold**: 10 seconds (when timer turns red)
 
 ### How to Change Game Duration
 
-To change the game duration (e.g., from 30 seconds to 5 seconds):
+To change the game duration (e.g., from 1 second to 30 seconds):
 
 1. Open `src/shared/constants.ts`
 2. Modify the `GAME_DURATION_SECONDS` constant:
    ```typescript
-   export const GAME_DURATION_SECONDS = 5; // Change this value
+   export const GAME_DURATION_SECONDS = 30; // Change this value
    ```
 3. Save the file
 4. The following will automatically update:
@@ -40,13 +40,19 @@ The constant is imported and used in:
 
 ### Example Configurations
 
+**Lightning Mode (1 second)** - Current
+```typescript
+export const GAME_DURATION_SECONDS = 1;
+export const LOW_TIME_THRESHOLD = 10;
+```
+
 **Quick Mode (5 seconds)**
 ```typescript
 export const GAME_DURATION_SECONDS = 5;
 export const LOW_TIME_THRESHOLD = 2;
 ```
 
-**Standard Mode (30 seconds)** - Current
+**Standard Mode (30 seconds)**
 ```typescript
 export const GAME_DURATION_SECONDS = 30;
 export const LOW_TIME_THRESHOLD = 10;

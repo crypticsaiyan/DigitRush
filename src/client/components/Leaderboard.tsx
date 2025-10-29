@@ -1,33 +1,74 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LeaderboardResponse, LeaderboardEntry } from '../../shared/types/api';
 
 interface LeaderboardProps {
   compact?: boolean;
+  onClose?: () => void;
 }
 
-export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
+export const Leaderboard = ({ compact = false, onClose }: LeaderboardProps) => {
+  // leaderboard full object intentionally not stored; we manage entries + user separately
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [userRank, setUserRank] = useState<number | null>(null);
+  const [userScore, setUserScore] = useState<number | null>(null);
+  const [userUsername, setUserUsername] = useState<string | null>(null);
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null | undefined>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const PAGE_SIZE = 10;
 
   // Fallback Reddit default avatar based on rank (1..8 cycling)
   const defaultAvatar = (rank: number) =>
     `https://www.redditstatic.com/avatars/defaults/v2/avatar_default_${(rank % 8) + 1}.png`;
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
+    const fetchPage = async (offset = 0) => {
       try {
-        const res = await fetch('/api/leaderboard');
+        const res = await fetch(`/api/leaderboard?offset=${offset}&limit=${PAGE_SIZE}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: LeaderboardResponse = await res.json();
-        setLeaderboard(data);
+
+        if (offset === 0) {
+          setEntries(data.entries || []);
+          setUserRank(data.userRank ?? null);
+          setUserScore(data.userScore ?? null);
+          setUserUsername(data.userUsername ?? null);
+          setUserAvatarUrl(data.userAvatarUrl ?? null);
+        } else {
+          setEntries((prev) => [...prev, ...data.entries]);
+        }
+
+        if (!data.entries || data.entries.length < PAGE_SIZE) setHasMore(false);
       } catch (err) {
+        // ignore
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     };
 
-    fetchLeaderboard();
+    fetchPage(0);
   }, []);
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const offset = entries.length;
+      const res = await fetch(`/api/leaderboard?offset=${offset}&limit=${PAGE_SIZE}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: LeaderboardResponse = await res.json();
+      setEntries((prev) => [...prev, ...data.entries]);
+      if (!data.entries || data.entries.length < PAGE_SIZE) setHasMore(false);
+    } catch (err) {
+      // ignore
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   // kept for potential future use
 
@@ -36,19 +77,39 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
       className={
         compact
           ? 'w-full'
-          : 'bg-[#06282a] border border-[#122e2a] rounded-2xl w-full sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg flex flex-col h-[80vh] max-h-[600px]'
+          : 'bg-[#06282a] border border-[#122e2a] rounded-2xl w-full sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg flex flex-col h-[80vh] max-h-[600px] relative'
       }
     >
       {/* Fixed Header */}
       <div className="p-4 sm:p-6 md:p-8 pb-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          {!compact && (
-            <img src="/images/trophy.gif" alt="Trophy" className="w-10 h-10 sm:w-12 sm:h-12" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {!compact && (
+              <img src="/images/trophy.gif" alt="Trophy" className="w-10 h-10 sm:w-12 sm:h-12" />
+            )}
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#86f6b1] flex items-center gap-3">
+              <span className="text-3xl md:text-4xl text-white">Leaderboard</span>
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            </h2>
+          </div>
+          {/* Close button as third flex item */}
+          {!compact && onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close leaderboard"
+              className="rounded-full p-1.5 sm:p-2 md:p-2 lg:p-2 bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+            >
+              <svg
+                className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-5 lg:h-5 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           )}
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#86f6b1] flex items-center gap-3">
-            <span className="text-3xl md:text-4xl text-white">Leaderboard</span>
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-          </h2>
         </div>
       </div>
 
@@ -61,10 +122,10 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
           ></div>
           <p className="mt-4 text-gray-300 font-medium">Loading leaderboard...</p>
         </div>
-      ) : leaderboard && leaderboard.entries.length > 0 ? (
+      ) : entries && entries.length > 0 ? (
         <>
           {/* Fixed Current User Stats */}
-          {leaderboard.userRank && leaderboard.userScore !== null && (
+          {userRank && userScore !== null && (
             <div className="px-4 sm:px-6 md:px-8 pb-4 flex-shrink-0">
               <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-xl p-5 shadow-md">
                 <div className="flex items-center justify-between">
@@ -73,26 +134,24 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                       Your Ranking
                     </p>
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl font-bold text-[#86f6b1]">
-                        #{leaderboard.userRank}
-                      </span>
+                      <span className="text-3xl font-bold text-[#86f6b1]">#{userRank}</span>
                       <div className="h-8 w-px bg-[#16a085]"></div>
-                      <span className="text-2xl font-bold text-white">{leaderboard.userScore}</span>
+                      <span className="text-2xl font-bold text-white">{userScore}</span>
                       <span className="text-lg text-gray-400">pts</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right flex flex-col items-end">
                       <p className="text-xl font-bold text-white leading-tight">
-                        {leaderboard.userUsername || 'You'}
+                        {userUsername || 'You'}
                       </p>
                       <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white">
                         <img
                           src={
-                            leaderboard.userAvatarUrl ||
+                            userAvatarUrl ||
                             'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'
                           }
-                          alt={(leaderboard.userUsername || 'You') + "'s avatar"}
+                          alt={(userUsername || 'You') + "'s avatar"}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -102,7 +161,7 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                           }}
                         />
                         <div className="absolute inset-0 hidden items-center justify-center bg-[#0b3a3b] text-white font-bold">
-                          {(leaderboard.userUsername || 'You').substring(0, 2).toUpperCase()}
+                          {(userUsername || 'You').substring(0, 2).toUpperCase()}
                         </div>
                       </div>
                     </div>
@@ -113,9 +172,9 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
           )}
 
           {/* Scrollable Leaderboard List */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 pb-4">
+          <div ref={listRef} className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 pb-4">
             <div className="space-y-1 pr-1">
-              {leaderboard.entries.map((entry: LeaderboardEntry, index: number) => (
+              {entries.map((entry: LeaderboardEntry, index: number) => (
                 <div
                   key={entry.username}
                   className={`group flex items-center justify-between p-2 rounded-xl transition-all duration-200 hover:scale-[1.01] ${
@@ -236,6 +295,19 @@ export const Leaderboard = ({ compact = false }: LeaderboardProps) => {
                   </div>
                 </div>
               ))}
+
+              {/* Load more button at the end of the list */}
+              {hasMore && (
+                <div className="flex items-center justify-center mt-4">
+                  <button
+                    onClick={loadMore}
+                    className="text-xl px-4 py-2 bg-[#16a085] hover:bg-[#12a177] rounded-lg text-black font-semibold shadow-md"
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? 'Loading...' : 'Load More'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </>

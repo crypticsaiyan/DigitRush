@@ -35,7 +35,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
         const data: LeaderboardResponse = await res.json();
         if (data && Array.isArray(data.entries) && data.entries.length > 0) {
           // Prefer rank 1 if provided, else compute max defensively
-          const rankOne = data.entries.find(e => e.rank === 1);
+          const rankOne = data.entries.find((e) => e.rank === 1);
           const maxScore = rankOne?.score ?? data.entries.reduce((m, e) => Math.max(m, e.score), 0);
           setTopScore(maxScore);
         } else {
@@ -71,7 +71,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
             <div className="hidden sm:flex flex-col leading-tight text-left">
               <span className="text-2xl text-white/90 font-semibold">Leaderboard</span>
               <span className="text-xl text-white/60">
-                Top score: {loadingTopScore ? '…' : topScore ?? '—'}
+                Top score: {loadingTopScore ? '…' : (topScore ?? '—')}
               </span>
             </div>
 
@@ -89,7 +89,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
           </button>
         </div>
 
-  <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-8 md:p-12 shadow-lg">
+        <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-8 md:p-12 shadow-lg">
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="flex-1 text-center md:text-left">
               <h1 className="font-heading text-4xl md:text-5xl font-extrabold mb-6 text-[#86f6b1]">
@@ -154,7 +154,7 @@ export const StartPage = ({ onStart }: StartPageProps) => {
                   <ol className="list-decimal list-inside space-y-3">
                     <li>Solve as many problems as you can while the timer runs.</li>
                     <li>Correct answers increase your score and streak.</li>
-                    <li>Check the leaderboard and challenge friends.</li>
+                    <li>Check the leaderboard and compete with friends.</li>
                   </ol>
                 </div>
 
@@ -179,28 +179,14 @@ export const StartPage = ({ onStart }: StartPageProps) => {
             aria-modal="true"
             onClick={() => setShowLeaderboard(false)}
           >
+            {/* Background overlay - clicking this closes the modal */}
             <div className="absolute inset-0 bg-black/40" />
+            {/* Modal content */}
             <div
               className="relative z-10 max-w-3xl w-full text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={() => setShowLeaderboard(false)}
-                aria-label="Close leaderboard"
-                className="absolute top-4 right-4 z-20 rounded-md p-2 bg-white/6 hover:bg-white/10"
-              >
-                <svg
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              <Leaderboard />
+              <Leaderboard onClose={() => setShowLeaderboard(false)} />
             </div>
           </div>
         )}

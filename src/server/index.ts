@@ -84,16 +84,16 @@ function generateMathProblem(): MathProblem {
       finalOperation = 'subtraction';
       break;
     case 'multiplication':
-      num1 = getRandomInt(1, 20); // 1-20 (easier range)
-      num2 = getRandomInt(1, 10); // 1-10 (easier range)
+      num1 = getRandomInt(2, 20); // 2-20 (exclude 1)
+      num2 = getRandomInt(2, 10); // 2-10 (exclude 1)
       answer = num1 * num2;
       question = `${num1} × ${num2}`;
       finalOperation = 'multiplication';
       break;
     case 'division':
-      // Create divisors from 1-10 and also include 11
-      const divisors = [...Array.from({ length: 10 }, (_, i) => i + 1), 11]; // [1,2,3,4,5,6,7,8,9,10,11]
-  num2 = divisors[getRandomInt(0, divisors.length - 1)]!;
+      // Create divisors from 2-10 and also include 11 (exclude 1)
+      const divisors = [...Array.from({ length: 9 }, (_, i) => i + 2), 11]; // [2,3,4,5,6,7,8,9,10,11]
+      num2 = divisors[getRandomInt(0, divisors.length - 1)]!;
 
       // For divisor 11, use range 100-1000; for others use 1-100
       if (num2 === 11) {
@@ -102,6 +102,13 @@ function generateMathProblem(): MathProblem {
       } else {
         answer = getRandomInt(1, Math.floor(100 / num2)); // Ensure result is 1-100 divided by divisor
         num1 = num2 * answer; // Ensure clean division
+      }
+
+      // Ensure we're not dividing a number by itself (answer would be 1)
+      // If answer is 1, regenerate with a higher answer
+      if (answer === 1) {
+        answer = getRandomInt(2, Math.floor(100 / num2));
+        num1 = num2 * answer;
       }
 
       question = `${num1} ÷ ${num2}`;
@@ -249,7 +256,7 @@ router.post<{ postId: string }, GameStartResponse | { status: string; message: s
 
     try {
       const gameId = `${postId}_${Date.now()}`;
-  const firstProblem = generateMathProblem();
+      const firstProblem = generateMathProblem();
 
       // Store game state in Redis
       await saveGameState(gameId, {
@@ -306,7 +313,7 @@ router.post<
     }
 
     const timeElapsed = Date.now() - gameState.startTime;
-  const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
+    const timeRemaining = Math.max(0, GAME_DURATION_MS - timeElapsed); // game duration
 
     // Allow one final answer submission even if time has expired
     // The game will be ended by the client via the /end endpoint
@@ -318,7 +325,7 @@ router.post<
 
     let nextProblem: MathProblem | null = null;
     if (timeRemaining > 0) {
-  nextProblem = generateMathProblem();
+      nextProblem = generateMathProblem();
 
       // Update game state with new problem
       await saveGameState(gameId, {
@@ -334,7 +341,6 @@ router.post<
         currentProblem: currentProblem, // Keep current problem for consistency
       });
     }
-
 
     res.json({
       type: 'game-answer',
@@ -365,7 +371,7 @@ router.post<
   }
 
   try {
-  const gameState = await getGameState(gameId);
+    const gameState = await getGameState(gameId);
 
     // If game state doesn't exist, it might have already been cleaned up
     // Return a graceful response with score 0
@@ -408,7 +414,6 @@ router.post<
     // (username already fetched above)
     if (username && finalScore > 0) {
       const leaderboardSetKey = `leaderboard_set:${postId}`;
-      
 
       try {
         // Check existing score for this user
@@ -419,8 +424,7 @@ router.post<
           await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
         } else {
         }
-      } catch (err) {
-      }
+      } catch (err) {}
     }
 
     res.json({
@@ -429,7 +433,7 @@ router.post<
       highScore,
       isNewHighScore,
     });
-    } catch (error) {
+  } catch (error) {
     res.status(400).json({ status: 'error', message: 'Failed to end game' });
   }
 });
@@ -465,7 +469,7 @@ router.get<{ postId: string }, ShareInfoResponse | { status: string; message: st
 // Leaderboard endpoint
 router.get<{ postId: string }, LeaderboardResponse | { status: string; message: string }>(
   '/api/leaderboard',
-  async (_req, res): Promise<void> => {
+  async (req, res): Promise<void> => {
     const { postId } = context;
 
     if (!postId) {
@@ -478,16 +482,22 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
 
     try {
       const currentUsername = await reddit.getCurrentUsername();
-      
 
-      // Get all leaderboard entries for this post
+      // Parse pagination params (offset, limit)
+      const offset = Number.parseInt((req.query.offset as string) || '0', 10) || 0;
+      const limit = Math.min(Number.parseInt((req.query.limit as string) || '10', 10) || 10, 100);
+
+      // Get leaderboard entries for this post (paged)
       const entries: LeaderboardEntry[] = [];
 
       // Use sorted set to store leaderboard
-  const leaderboardSetKey = `leaderboard_set:${postId}`;
+      const leaderboardSetKey = `leaderboard_set:${postId}`;
 
-      // Get all members from sorted set (sorted by score, highest first)
-  const members = await redis.zRange(leaderboardSetKey, 0, -1, { by: 'rank', reverse: true });
+      // Get paged members from sorted set (sorted by score, highest first)
+      const members = await redis.zRange(leaderboardSetKey, offset, offset + limit - 1, {
+        by: 'rank',
+        reverse: true,
+      });
 
       // Helper: default redditstatic avatar from username (stable)
       const defaultAvatarFromUsername = (name: string) => {
@@ -525,8 +535,7 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
               (user as any)?.icon_img ||
               undefined;
           }
-        } catch (err) {
-        }
+        } catch (err) {}
 
         // Final fallback to redditstatic default if still missing
         if (!avatarUrl) {
@@ -540,18 +549,50 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           avatarUrl,
         });
       }
-      
 
-      // Sort by score descending (in case Redis didn't sort properly)
-      entries.sort((a, b) => b.score - a.score);
+      // Convert members from redis shape ({ member, score }) to LeaderboardEntry and set ranks
+      const pagedEntries: LeaderboardEntry[] = [];
+      for (let i = 0; i < members.length; i++) {
+        const m = members[i];
+        if (!m) continue;
+        const username = m.member;
+        const score = m.score;
 
-      // Assign ranks and limit to top 10
-      const topEntries = entries.slice(0, 10).map((entry, index) => ({
-        ...entry,
-        rank: index + 1,
-      }));
+        // Try to get user avatar (best-effort)
+        let avatarUrl: string | undefined;
+        try {
+          if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+            const url = await (reddit as any).getSnoovatarUrl(username);
+            if (typeof url === 'string' && url.length > 0) {
+              avatarUrl = url;
+            }
+          }
+          if (!avatarUrl) {
+            const user = await reddit.getUserByUsername(username);
+            avatarUrl =
+              (user as any)?.snoovatar_img ||
+              (user as any)?.iconImg ||
+              (user as any)?.icon_img ||
+              undefined;
+          }
+        } catch (err) {
+          // ignore avatar fetch failures
+        }
 
-      // Find current user's rank and score
+        if (!avatarUrl) {
+          avatarUrl = defaultAvatarFromUsername(username);
+        }
+
+        pagedEntries.push({
+          username,
+          score,
+          rank: offset + i + 1,
+          avatarUrl,
+        });
+      }
+
+      // Find current user's rank and score by fetching the full sorted set (fallback)
+      // NOTE: if the leaderboard grows huge, replace this with a proper zRank/zRevRank
       let userRank: number | null = null;
       let userScore: number | null = null;
       let userUsername: string | null = null;
@@ -559,21 +600,28 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
 
       if (currentUsername) {
         userUsername = currentUsername;
-        const userEntry = entries.find((e) => e.username === currentUsername);
-        if (userEntry) {
-          userRank = entries.indexOf(userEntry) + 1;
-          userScore = userEntry.score;
-          userAvatarUrl = userEntry.avatarUrl;
-        } else {
-          // Compute avatar for current user (not necessarily in top entries)
-          try {
-                  if (typeof (reddit as any).getSnoovatarUrl === 'function') {
-                  const url = await (reddit as any).getSnoovatarUrl(currentUsername);
-                  if (typeof url === 'string' && url.length > 0) {
-                      userAvatarUrl = url;
-                    }
-                  }
+        try {
+          const allMembers = await redis.zRange(leaderboardSetKey, 0, -1, {
+            by: 'rank',
+            reverse: true,
+          });
+          const idx = allMembers.findIndex((m) => m.member === currentUsername);
+          if (idx >= 0) {
+            const found = allMembers[idx];
+            if (found) {
+              userRank = idx + 1;
+              userScore = found.score;
+              // avatar not provided by redis; will attempt reddit lookup below if needed
+            }
+          }
 
+          if (!userAvatarUrl) {
+            if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+              const url = await (reddit as any).getSnoovatarUrl(currentUsername);
+              if (typeof url === 'string' && url.length > 0) {
+                userAvatarUrl = url;
+              }
+            }
             if (!userAvatarUrl) {
               const user = await reddit.getUserByUsername(currentUsername);
               userAvatarUrl =
@@ -582,19 +630,19 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
                 (user as any)?.icon_img ||
                 undefined;
             }
-          } catch (err) {
           }
+        } catch (err) {
+          // ignore failures
+        }
 
-          if (!userAvatarUrl) {
-            userAvatarUrl = defaultAvatarFromUsername(currentUsername);
-          }
+        if (!userAvatarUrl) {
+          userAvatarUrl = defaultAvatarFromUsername(currentUsername);
         }
       }
 
-      
       res.json({
         type: 'leaderboard',
-        entries: topEntries,
+        entries: pagedEntries,
         userRank,
         userScore,
         userUsername,
