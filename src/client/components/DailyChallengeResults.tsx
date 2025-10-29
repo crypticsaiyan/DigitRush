@@ -78,8 +78,8 @@ export const DailyChallengeResults = ({ challenge }: DailyChallengeResultsProps)
             <div className="sm:col-span-1 space-y-4">
               <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4">
                 <div className="flex items-center justify-between whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl">⏱️</span>
+                  <div className="flex items-center gap-3">
+                    <img src="/images/clock.png" alt="Clock" className="w-10 h-10" />
                     <span className="text-lg font-semibold text-white">Completion Time</span>
                   </div>
                   <span className="text-2xl font-bold text-white">
@@ -142,8 +142,8 @@ export const DailyChallengeResults = ({ challenge }: DailyChallengeResultsProps)
             {/* Completion Time */}
             <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4">
               <div className="flex items-center justify-between whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl">⏱️</span>
+                <div className="flex items-center gap-3">
+                  <img src="/images/clock.png" alt="Clock" className="w-10 h-10" />
                   <span className="text-lg font-semibold text-white">Completion Time</span>
                 </div>
                 <span className="text-2xl font-bold text-white">

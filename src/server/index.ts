@@ -64,9 +64,15 @@ async function deleteGameState(gameId: string) {
 }
 
 // Helper function to get today's date in YYYY-MM-DD format
+// Uses the user's local timezone instead of UTC to ensure daily challenges
+// reset at midnight in the user's timezone, not UTC midnight
 function getTodayDateString(): string {
   const today = new Date();
-  return today.toISOString().split('T')[0]!;
+  // Get local date string in YYYY-MM-DD format
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Helper function to generate deterministic daily problems based on date
@@ -601,7 +607,7 @@ router.get<{ postId: string }, GameStatsResponse | { status: string; message: st
 // Daily Challenge endpoints
 router.get<{ postId: string }, DailyChallengeInitResponse | { status: string; message: string }>(
   '/api/daily-challenge/init',
-  async (_req, res): Promise<void> => {
+  async (req, res): Promise<void> => {
     const { postId } = context;
 
     if (!postId) {
@@ -613,7 +619,10 @@ router.get<{ postId: string }, DailyChallengeInitResponse | { status: string; me
     }
 
     try {
-      const today = getTodayDateString();
+      // Allow client to specify date, otherwise use server's local date
+      const clientDate = req.query.date as string;
+      const today = clientDate || getTodayDateString();
+      console.log(`Daily challenge init - clientDate: ${clientDate}, today: ${today}`);
       const username = await reddit.getCurrentUsername();
       
       if (!username) {
@@ -629,7 +638,19 @@ router.get<{ postId: string }, DailyChallengeInitResponse | { status: string; me
       
       // Check if user has already attempted today's challenge
       const attemptKey = `daily_challenge_attempt:${postId}:${today}:${username}`;
+      console.log(`Checking attempt key: ${attemptKey}`);
       const attemptData = await redis.get(attemptKey);
+      console.log(`Attempt data found: ${attemptData ? 'yes' : 'no'}`);
+      
+      // Debug: Check for attempts from the last few days to see if there's a date mismatch
+      if (!attemptData && username) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+        const yesterdayKey = `daily_challenge_attempt:${postId}:${yesterdayStr}:${username}`;
+        const yesterdayData = await redis.get(yesterdayKey);
+        console.log(`Yesterday (${yesterdayStr}) attempt found: ${yesterdayData ? 'yes' : 'no'}`);
+      }
       
       let hasAttempted = false;
       let userTime: number | undefined;
@@ -664,7 +685,7 @@ router.post<
   { postId: string },
   DailyChallengeStartResponse | { status: string; message: string },
   unknown
->('/api/daily-challenge/start', async (_req, res): Promise<void> => {
+>('/api/daily-challenge/start', async (req, res): Promise<void> => {
   const { postId } = context;
   
   if (!postId) {
@@ -676,7 +697,9 @@ router.post<
   }
 
   try {
-    const today = getTodayDateString();
+    // Allow client to specify date, otherwise use server's local date
+    const clientDate = (req.body as any)?.date || (req.query.date as string);
+    const today = clientDate || getTodayDateString();
     const username = await reddit.getCurrentUsername();
     
     if (!username) {
@@ -693,7 +716,7 @@ router.post<
     
     // Allow forcing a new attempt when running in testing mode and the client
     // explicitly requests it via the `force=true` query parameter.
-  const force = (typeof (_req.query as any).force !== 'undefined') && String((_req.query as any).force) === 'true';
+  const force = (typeof (req.query as any).force !== 'undefined') && String((req.query as any).force) === 'true';
     // Read testing flag from shared constants
     // Note: this should only be enabled in development/testing environments.
     // If an existing attempt is present and not forced, reject the start.

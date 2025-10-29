@@ -35,6 +35,8 @@ export const useAssetPreloader = () => {
           'images/scroll.png',
           'images/silver.png',
           'images/trophy.gif',
+          'images/clock.png',
+          'images/target.png',
         ];
 
         const fontAssets = [

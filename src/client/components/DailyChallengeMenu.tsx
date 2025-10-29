@@ -171,17 +171,23 @@ export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProp
               <div className="mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="bg-white/5 rounded-lg p-4">
-                    <div className="text-3xl mb-2">🎯</div>
+                    <div className="flex justify-center mb-2">
+                      <img src="/images/target.png" alt="Target" className="w-12" />
+                    </div>
                     <h3 className="text-xl font-bold text-white mb-2">5 Problems</h3>
                     <p className="text-gray-300">Mixed math operations</p>
                   </div>
                   <div className="bg-white/5 rounded-lg p-4">
-                    <div className="text-3xl mb-2">⏱️</div>
+                    <div className="flex justify-center mb-2">
+                      <img src="/images/clock.png" alt="Clock" className="w-12" />
+                    </div>
                     <h3 className="text-xl font-bold text-white mb-2">Speed Matters</h3>
                     <p className="text-gray-300">Fastest solver wins</p>
                   </div>
                   <div className="bg-white/5 rounded-lg p-4">
-                    <div className="text-3xl mb-2">🏆</div>
+                    <div className="flex justify-center mb-2">
+                      <img src="/images/trophy.gif" alt="Trophy" className="w-12" />
+                    </div>
                     <h3 className="text-xl font-bold text-white mb-2">One Chance</h3>
                     <p className="text-gray-300">One attempt per day</p>
                   </div>
@@ -191,7 +197,7 @@ export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProp
               <button
                 onClick={challenge.startChallenge}
                 disabled={challenge.loading}
-                className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-[#06282A] font-bold px-8 py-4 rounded-lg text-xl transition-transform transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-[#06282A] font-bold px-8 py-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>{challenge.loading ? 'Starting...' : 'Start Daily Challenge'}</span>
               </button>

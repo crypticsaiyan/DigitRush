@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import type { DailyChallengeLeaderboardResponse, DailyChallengeLeaderboardEntry } from '../../shared/types/api';
+import type {
+  DailyChallengeLeaderboardResponse,
+  DailyChallengeLeaderboardEntry,
+} from '../../shared/types/api';
 
 interface DailyChallengeLeaderboardProps {
   onClose?: () => void;
@@ -28,18 +31,25 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   };
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await fetch('/api/daily-challenge/leaderboard');
+        // Get today's date in client's timezone
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayDate = `${year}-${month}-${day}`;
+
+        const res = await fetch(`/api/daily-challenge/leaderboard?date=${todayDate}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: DailyChallengeLeaderboardResponse = await res.json();
 
@@ -66,7 +76,7 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
       <div className="p-4 sm:p-6 md:p-8 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <img src="/images/trophy.gif" alt="Trophy" className="w-10 h-10 sm:w-12 sm:h-12" />
+            <img src="/images/trophy.gif" alt="Trophy" className="w-12 h-12 sm:w-14 sm:h-14" />
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-[#86f6b1] flex items-center gap-3">
                 <span className="text-3xl md:text-4xl text-white">Daily Challenge</span>
@@ -272,7 +282,9 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
         </>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4 opacity-50">🏆</div>
+          <div className="flex justify-center mb-4">
+            <img src="/images/trophy.gif" alt="Trophy" className="w-20 h-20 opacity-50" />
+          </div>
           <p className="text-xl text-gray-300 mb-2 font-semibold">No attempts yet!</p>
           <p className="text-sm text-gray-400">Be the first to complete today's challenge.</p>
         </div>

@@ -24,11 +24,21 @@ export const useDailyChallenge = () => {
   const [finalScore, setFinalScore] = useState(0);
   const [rank, setRank] = useState<number | null>(null);
 
+  // Get today's date in client's timezone
+  const getTodayDateString = useCallback(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
   // Initialize daily challenge
   const initChallenge = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/daily-challenge/init');
+      const todayDate = getTodayDateString();
+      const res = await fetch(`/api/daily-challenge/init?date=${todayDate}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: DailyChallengeInitResponse = await res.json();
       setChallengeInfo(data.challenge);
@@ -37,7 +47,7 @@ export const useDailyChallenge = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getTodayDateString]);
 
   // Start daily challenge
   const startChallenge = useCallback(async () => {
@@ -47,13 +57,21 @@ export const useDailyChallenge = () => {
 
     try {
       setLoading(true);
+      const todayDate = getTodayDateString();
       let url = '/api/daily-challenge/start';
+      const params = new URLSearchParams();
       if (ALLOW_DAILY_RETRIES_FOR_TESTING) {
-        url += '?force=true';
+        params.append('force', 'true');
       }
+      params.append('date', todayDate);
+      if (params.toString()) {
+        url += '?' + params.toString();
+      }
+      
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: todayDate }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: DailyChallengeStartResponse = await res.json();
@@ -69,7 +87,7 @@ export const useDailyChallenge = () => {
     } finally {
       setLoading(false);
     }
-  }, [challengeInfo]);
+  }, [challengeInfo, getTodayDateString]);
 
   // Submit answer
   const submitAnswer = useCallback(async (answer: number) => {
