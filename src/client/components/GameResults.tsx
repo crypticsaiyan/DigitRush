@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMathGame } from '../hooks/useMathGame';
 import { Leaderboard } from './Leaderboard';
-import type { LeaderboardResponse } from '../../shared/types/api';
+import type { LeaderboardResponse, ShareInfoResponse } from '../../shared/types/api';
 
 interface GameResultsProps {
   game: ReturnType<typeof useMathGame>;
@@ -10,6 +10,10 @@ interface GameResultsProps {
 export const GameResults = ({ game }: GameResultsProps) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [shareInfo, setShareInfo] = useState<{ postUrl: string; subredditName: string } | null>(
+    null
+  );
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   const getScoreColor = () => {
     // Use the app's accent heading color for consistency across screens
@@ -47,6 +51,92 @@ export const GameResults = ({ game }: GameResultsProps) => {
     };
   }, []);
 
+  // Fetch share info
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/share-info');
+        if (!res.ok) return;
+        const data: ShareInfoResponse = await res.json();
+        if (cancelled) return;
+        setShareInfo({ postUrl: data.postUrl, subredditName: data.subredditName });
+      } catch {
+        // ignore errors silently for this auxiliary UI
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleShare = () => {
+    console.log('Share button clicked');
+    console.log('shareInfo:', shareInfo);
+
+    if (!shareInfo) {
+      console.log('No share info available');
+      alert('Share info not loaded yet. Please try again.');
+      return;
+    }
+
+    const shareText = `I got a score of ${game.currentScore} in DigitRush. Can you beat my score? Play now ${shareInfo.postUrl}`;
+    console.log('Share text:', shareText);
+
+    // Try to use native share API if available (mobile)
+    if (navigator.share) {
+      console.log('Using native share API');
+      navigator
+        .share({
+          title: 'DigitRush Challenge',
+          text: shareText,
+          url: shareInfo.postUrl,
+        })
+        .then(() => {
+          console.log('Native share successful');
+        })
+        .catch((error) => {
+          console.log('Native share failed:', error);
+          // Fallback to clipboard if share fails
+          fallbackShare(shareText);
+        });
+    } else {
+      console.log('Using fallback share');
+      // Fallback for desktop
+      fallbackShare(shareText);
+    }
+  };
+
+  const showCopySuccess = () => {
+    setShowCopyNotification(true);
+    setTimeout(() => {
+      setShowCopyNotification(false);
+    }, 2000);
+  };
+
+  const fallbackShare = (text: string) => {
+    console.log('Using fallback share with text:', text);
+    // Try to copy to clipboard
+    if (navigator.clipboard) {
+      console.log('Trying clipboard API');
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          console.log('Clipboard copy successful');
+          showCopySuccess();
+        })
+        .catch((error) => {
+          console.log('Clipboard copy failed:', error);
+          // Final fallback - show text in alert
+          alert(`Share this message:\n\n${text}`);
+        });
+    } else {
+      console.log('No clipboard API, showing alert');
+      // Final fallback - show text in alert
+      alert(`Share this message:\n\n${text}`);
+    }
+  };
+
   return (
     <div className="min-h-screen sm:h-screen flex items-center justify-center p-6 bg-[#021013]">
       <main className="w-full max-w-3xl mx-auto sm:h-full sm:flex sm:items-stretch">
@@ -68,14 +158,15 @@ export const GameResults = ({ game }: GameResultsProps) => {
             <p className="mt-3 text-gray-300 text-2xl">Here's how you did:</p>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:flex-1">
+          {/* Desktop layout: 2 columns */}
+          <div className="mt-6 hidden sm:grid sm:grid-cols-2 gap-6 sm:flex-1">
             <div className="sm:col-span-1">
               {game.isNewHighScore && (
-                  <h2 className="text-2xl font-bold text-[#86f6b1] mb-1 flex items-center justify-center gap-2">
-                    <img src="/images/partypopper.png" alt="Party" className="w-6" />
-                    NEW HIGH SCORE!
-                    <img src="/images/partypopper.png" alt="Party" className="w-6" />
-                  </h2>
+                <h2 className="text-2xl font-bold text-[#86f6b1] mb-1 flex items-center justify-center gap-2">
+                  <img src="/images/partypopper.png" alt="Party" className="w-6" />
+                  NEW HIGH SCORE!
+                  <img src="/images/partypopper.png" alt="Party" className="w-6" />
+                </h2>
               )}
 
               <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-lg p-6 mb-4 text-center shadow-md">
@@ -85,7 +176,6 @@ export const GameResults = ({ game }: GameResultsProps) => {
                 </p>
                 <p className="text-gray-300">problems solved</p>
               </div>
-              
             </div>
 
             <div className="sm:col-span-1 space-y-4">
@@ -98,22 +188,6 @@ export const GameResults = ({ game }: GameResultsProps) => {
                   <span className="text-2xl font-bold text-white">{game.highScore}</span>
                 </div>
               </div>
-
-              {/* Phone-only: Leaderboard quick access block, styled like High Score */}
-              <button
-                type="button"
-                onClick={() => setShowLeaderboard(true)}
-                className="sm:hidden bg-[#062d2e] border border-[#16a085] rounded-lg p-4 w-full text-left hover:bg-white/5 transition"
-                aria-label="Open leaderboard"
-              >
-                <div className="flex items-center justify-between whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <img src="/images/trophy.gif" alt="Leaderboard" className="w-10 h-10" />
-                    <span className="text-lg font-semibold text-white">Leaderboard</span>
-                  </div>
-                  <span className="text-2xl font-bold text-[#86f6b1]">{userRank ? `#${userRank}` : 'View'}</span>
-                </div>
-              </button>
 
               <div className="bg-[#0b2f2a] border border-[#122e2a] rounded-lg p-4">
                 <h3 className="text-2xl font-semibold text-gray-200 mb-2 flex items-center gap-2">
@@ -142,7 +216,116 @@ export const GameResults = ({ game }: GameResultsProps) => {
             </div>
           </div>
 
-          <div className="mt-6 sm:mt-auto flex flex-col items-center gap-3">
+          {/* Mobile layout: single column with custom order */}
+          <div className="mt-6 sm:hidden space-y-4">
+            {/* 1. Your Score */}
+            <div>
+              {game.isNewHighScore && (
+                <h2 className="text-2xl font-bold text-[#86f6b1] mb-1 flex items-center justify-center gap-2">
+                  <img src="/images/partypopper.png" alt="Party" className="w-6" />
+                  NEW HIGH SCORE!
+                  <img src="/images/partypopper.png" alt="Party" className="w-6" />
+                </h2>
+              )}
+
+              <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-lg p-6 text-center shadow-md">
+                <h3 className="text-2xl font-semibold text-[#86f6b1] mb-2">Your Score</h3>
+                <p className={`text-5xl font-extrabold mb-2 ${getScoreColor()}`}>
+                  {game.currentScore}
+                </p>
+                <p className="text-gray-300">problems solved</p>
+              </div>
+            </div>
+
+            {/* 2. Share button */}
+            <button
+              onClick={handleShare}
+              disabled={!shareInfo}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[#1a5490] hover:bg-[#2563eb] text-white text-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+              </svg>
+              Share Score
+            </button>
+
+            {/* 3. Play Again button */}
+            <div className="flex justify-center">
+              <button
+                onClick={game.startGame}
+                disabled={game.loading}
+                className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-[#06282A] font-bold px-5 py-3 rounded-lg text-sm transition-transform transform hover:scale-105 shadow-md animate-heartbeat disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span>{game.loading ? 'Starting...' : 'Play Again'}</span>
+              </button>
+            </div>
+
+            {/* 4. Leaderboard */}
+            <button
+              type="button"
+              onClick={() => setShowLeaderboard(true)}
+              className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4 w-full text-left hover:bg-white/5 transition"
+              aria-label="Open leaderboard"
+            >
+              <div className="flex items-center justify-between whitespace-nowrap">
+                <div className="flex items-center gap-2">
+                  <img src="/images/trophy.gif" alt="Leaderboard" className="w-10 h-10" />
+                  <span className="text-lg font-semibold text-white">Leaderboard</span>
+                </div>
+                <span className="text-2xl font-bold text-[#86f6b1]">
+                  {userRank ? `#${userRank}` : 'View'}
+                </span>
+              </div>
+            </button>
+
+            {/* 5. High Score */}
+            <div className="bg-[#062d2e] border border-[#16a085] rounded-lg p-4">
+              <div className="flex items-center justify-between whitespace-nowrap">
+                <div className="flex items-center gap-2">
+                  <img src="/images/gold.png" alt="Gold" className="w-10" />
+                  <span className="text-lg font-semibold text-white">High Score</span>
+                </div>
+                <span className="text-2xl font-bold text-white">{game.highScore}</span>
+              </div>
+            </div>
+
+            {/* 6. Performance */}
+            <div className="bg-[#0b2f2a] border border-[#122e2a] rounded-lg p-4">
+              <h3 className="text-2xl font-semibold text-gray-200 mb-2 flex items-center gap-2">
+                <img src="/images/scroll.png" alt="Performance" className="w-10" />
+                Performance
+              </h3>
+              <div className="grid grid-cols-2 gap-4 text-xl">
+                <div>
+                  <p className="text-gray-400">Problems / min</p>
+                  <p className="font-bold text-gray-200">{game.currentScore}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Accuracy</p>
+                  <p className="font-bold text-gray-200">
+                    {(() => {
+                      const total = game.totalAnswered ?? 0;
+                      const correct = game.totalCorrect ?? 0;
+                      if (total === 0) return '0%';
+                      const pct = Math.round((correct / total) * 100);
+                      return `${pct}%`;
+                    })()}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 7. Back to Menu */}
+            <button
+              onClick={game.resetToMenu}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/6 hover:bg-white/10 text-white text-2xl transition"
+            >
+              Back to Menu
+            </button>
+          </div>
+
+          {/* Desktop buttons - only shown on desktop */}
+          <div className="mt-6 sm:mt-auto hidden sm:flex flex-col items-center gap-3">
             <button
               onClick={game.startGame}
               disabled={game.loading}
@@ -151,16 +334,40 @@ export const GameResults = ({ game }: GameResultsProps) => {
               <span>{game.loading ? 'Starting...' : 'Play Again'}</span>
             </button>
 
-            <button
-              onClick={game.resetToMenu}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/6 hover:bg-white/10 text-white text-2xl transition"
-            >
-              Back to Menu
-            </button>
-          </div>
+            {/* Desktop: Share and Back buttons on same line */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleShare}
+                disabled={!shareInfo}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a5490] hover:bg-[#2563eb] text-white text-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                </svg>
+                Share Score
+              </button>
 
-          
+              <button
+                onClick={game.resetToMenu}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/6 hover:bg-white/10 text-white text-2xl transition"
+              >
+                Back to Menu
+              </button>
+            </div>
+          </div>
         </section>
+
+        {/* Copy notification popup */}
+        {showCopyNotification && (
+          <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+            <div
+              className="px-6 py-3 rounded-lg shadow-lg font-semibold text-2xl animate-fade-in-out text-white"
+              style={{ backgroundColor: 'rgba(22, 160, 133, 1)' }}
+            >
+              Share message copied to clipboard!
+            </div>
+          </div>
+        )}
 
         {/* Leaderboard modal */}
         {showLeaderboard && (

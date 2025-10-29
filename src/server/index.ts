@@ -10,6 +10,7 @@ import {
   MathProblem,
   LeaderboardResponse,
   LeaderboardEntry,
+  ShareInfoResponse,
 } from '../shared/types/api';
 import { GAME_DURATION_MS } from '../shared/constants';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
@@ -432,6 +433,34 @@ router.post<
     res.status(400).json({ status: 'error', message: 'Failed to end game' });
   }
 });
+
+// Share info endpoint
+router.get<{ postId: string }, ShareInfoResponse | { status: string; message: string }>(
+  '/api/share-info',
+  async (_req, res): Promise<void> => {
+    const { postId, subredditName } = context;
+
+    if (!postId || !subredditName) {
+      res.status(400).json({
+        status: 'error',
+        message: 'postId and subredditName are required',
+      });
+      return;
+    }
+
+    try {
+      const postUrl = `https://reddit.com/r/${subredditName}/comments/${postId}`;
+
+      res.json({
+        type: 'share-info',
+        postUrl,
+        subredditName,
+      });
+    } catch (error) {
+      res.status(400).json({ status: 'error', message: 'Failed to get share info' });
+    }
+  }
+);
 
 // Leaderboard endpoint
 router.get<{ postId: string }, LeaderboardResponse | { status: string; message: string }>(

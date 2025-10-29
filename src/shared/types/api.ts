@@ -68,3 +68,9 @@ export type LeaderboardResponse = {
   userUsername: string | null;
   userAvatarUrl?: string | null;
 };
+
+export type ShareInfoResponse = {
+  type: 'share-info';
+  postUrl: string;
+  subredditName: string;
+};
