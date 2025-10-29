@@ -12,8 +12,15 @@ import {
   LeaderboardEntry,
   ShareInfoResponse,
   GameStatsResponse,
+  DailyChallengeInitResponse,
+  DailyChallengeStartResponse,
+  DailyChallengeAnswerResponse,
+  DailyChallengeEndResponse,
+  DailyChallengeLeaderboardResponse,
+  DailyChallengeLeaderboardEntry,
+  DailyChallengeInfo,
 } from '../shared/types/api';
-import { GAME_DURATION_MS } from '../shared/constants';
+import { GAME_DURATION_MS, DAILY_CHALLENGE_PROBLEMS_COUNT } from '../shared/constants';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
 import { createPost } from './core/post';
 
@@ -54,6 +61,90 @@ async function getGameState(gameId: string) {
 
 async function deleteGameState(gameId: string) {
   await redis.del(`game:${gameId}`);
+}
+
+// Helper function to get today's date in YYYY-MM-DD format
+function getTodayDateString(): string {
+  const today = new Date();
+  return today.toISOString().split('T')[0]!;
+}
+
+// Helper function to generate deterministic daily problems based on date
+function generateDailyProblems(date: string): MathProblem[] {
+  // Use date as seed for deterministic random generation
+  const seed = date.split('-').map(Number).reduce((a, b) => a + b, 0);
+  let seedValue = seed;
+  
+  const seededRandom = () => {
+    seedValue = (seedValue * 9301 + 49297) % 233280;
+    return seedValue / 233280;
+  };
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(seededRandom() * (max - min + 1)) + min;
+  };
+
+  const problems: MathProblem[] = [];
+  const operations = ['addition', 'subtraction', 'multiplication', 'division'] as const;
+
+  for (let i = 0; i < DAILY_CHALLENGE_PROBLEMS_COUNT; i++) {
+    const operation = operations[getRandomInt(0, operations.length - 1)];
+    let num1: number, num2: number, answer: number, question: string;
+    let finalOperation: 'addition' | 'subtraction' | 'multiplication' | 'division' = 'addition';
+
+    switch (operation) {
+      case 'addition':
+        num1 = getRandomInt(10, 99);
+        num2 = getRandomInt(10, 99);
+        answer = num1 + num2;
+        question = `${num1} + ${num2}`;
+        finalOperation = 'addition';
+        break;
+      case 'subtraction':
+        num1 = getRandomInt(20, 99);
+        num2 = getRandomInt(10, num1 - 1);
+        answer = num1 - num2;
+        question = `${num1} - ${num2}`;
+        finalOperation = 'subtraction';
+        break;
+      case 'multiplication':
+        num1 = getRandomInt(2, 20);
+        num2 = getRandomInt(2, 10);
+        answer = num1 * num2;
+        question = `${num1} × ${num2}`;
+        finalOperation = 'multiplication';
+        break;
+      case 'division':
+        const divisors = [...Array.from({ length: 9 }, (_, i) => i + 2), 11];
+        num2 = divisors[getRandomInt(0, divisors.length - 1)]!;
+        if (num2 === 11) {
+          answer = getRandomInt(Math.ceil(100 / 11), Math.floor(1000 / 11));
+          num1 = num2 * answer;
+        } else {
+          answer = getRandomInt(2, Math.floor(100 / num2));
+          num1 = num2 * answer;
+        }
+        question = `${num1} ÷ ${num2}`;
+        finalOperation = 'division';
+        break;
+      default:
+        num1 = getRandomInt(10, 99);
+        num2 = getRandomInt(10, 99);
+        answer = num1 + num2;
+        question = `${num1} + ${num2}`;
+        finalOperation = 'addition';
+        break;
+    }
+
+    problems.push({
+      id: `daily_${date}_${i}`,
+      question,
+      answer,
+      operation: finalOperation,
+    });
+  }
+
+  return problems;
 }
 
 // Helper function to generate math problems
@@ -503,6 +594,458 @@ router.get<{ postId: string }, GameStatsResponse | { status: string; message: st
       });
     } catch (error) {
       res.status(400).json({ status: 'error', message: 'Failed to fetch game stats' });
+    }
+  }
+);
+
+// Daily Challenge endpoints
+router.get<{ postId: string }, DailyChallengeInitResponse | { status: string; message: string }>(
+  '/api/daily-challenge/init',
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+
+    if (!postId) {
+      res.status(400).json({
+        status: 'error',
+        message: 'postId is required',
+      });
+      return;
+    }
+
+    try {
+      const today = getTodayDateString();
+      const username = await reddit.getCurrentUsername();
+      
+      if (!username) {
+        res.status(400).json({
+          status: 'error',
+          message: 'User authentication required',
+        });
+        return;
+      }
+      
+      // Generate today's problems
+      const problems = generateDailyProblems(today);
+      
+      // Check if user has already attempted today's challenge
+      const attemptKey = `daily_challenge_attempt:${postId}:${today}:${username}`;
+      const attemptData = await redis.get(attemptKey);
+      
+      let hasAttempted = false;
+      let userTime: number | undefined;
+      let userScore: number | undefined;
+      
+      if (attemptData) {
+        const attempt = JSON.parse(attemptData);
+        hasAttempted = true;
+        userTime = attempt.completionTime;
+        userScore = attempt.score;
+      }
+
+      const challengeInfo: DailyChallengeInfo = {
+        date: today,
+        problems,
+        hasAttempted,
+        ...(userTime !== undefined && { userTime }),
+        ...(userScore !== undefined && { userScore }),
+      };
+
+      res.json({
+        type: 'daily-challenge-init',
+        challenge: challengeInfo,
+      });
+    } catch (error) {
+      res.status(400).json({ status: 'error', message: 'Failed to initialize daily challenge' });
+    }
+  }
+);
+
+router.post<
+  { postId: string },
+  DailyChallengeStartResponse | { status: string; message: string },
+  unknown
+>('/api/daily-challenge/start', async (_req, res): Promise<void> => {
+  const { postId } = context;
+  
+  if (!postId) {
+    res.status(400).json({
+      status: 'error',
+      message: 'postId is required',
+    });
+    return;
+  }
+
+  try {
+    const today = getTodayDateString();
+    const username = await reddit.getCurrentUsername();
+    
+    if (!username) {
+      res.status(400).json({
+        status: 'error',
+        message: 'User authentication required',
+      });
+      return;
+    }
+    
+    // Check if user has already attempted today's challenge
+    const attemptKey = `daily_challenge_attempt:${postId}:${today}:${username}`;
+    const existingAttempt = await redis.get(attemptKey);
+    
+    // Allow forcing a new attempt when running in testing mode and the client
+    // explicitly requests it via the `force=true` query parameter.
+  const force = (typeof (_req.query as any).force !== 'undefined') && String((_req.query as any).force) === 'true';
+    // Read testing flag from shared constants
+    // Note: this should only be enabled in development/testing environments.
+    // If an existing attempt is present and not forced, reject the start.
+    if (existingAttempt && !force) {
+      res.status(400).json({
+        status: 'error',
+        message: 'You have already attempted today\'s challenge',
+      });
+      return;
+    }
+
+    const challengeId = `daily_${postId}_${today}_${username}_${Date.now()}`;
+    const problems = generateDailyProblems(today);
+
+    // Store challenge state
+    await redis.set(`daily_challenge:${challengeId}`, JSON.stringify({
+      startTime: Date.now(),
+      problems,
+      currentProblemIndex: 0,
+      correctAnswers: 0,
+      answers: [],
+    }), {
+      expiration: new Date(Date.now() + 300000), // 5 minutes expiry
+    });
+
+    // Count daily challenge start as a play for aggregate metrics
+    await redis.incrBy(`total_plays:${postId}`, 1);
+
+    res.json({
+      type: 'daily-challenge-start',
+      challengeId,
+      problems,
+    });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: 'Failed to start daily challenge' });
+  }
+});
+
+router.post<
+  { postId: string },
+  DailyChallengeAnswerResponse | { status: string; message: string },
+  { challengeId: string; answer: number; problemIndex: number }
+>('/api/daily-challenge/answer', async (req, res): Promise<void> => {
+  const { postId } = context;
+  const { challengeId, answer, problemIndex } = req.body;
+
+  if (!postId || !challengeId || answer === undefined || problemIndex === undefined) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Missing required fields',
+    });
+    return;
+  }
+
+  try {
+    const challengeData = await redis.get(`daily_challenge:${challengeId}`);
+    
+    if (!challengeData) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Challenge not found',
+      });
+      return;
+    }
+
+    const challenge = JSON.parse(challengeData);
+    const problem = challenge.problems[problemIndex];
+    
+    if (!problem) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Problem not found',
+      });
+      return;
+    }
+
+    const correct = problem.answer === answer;
+    
+    if (correct) {
+      challenge.correctAnswers++;
+    }
+    
+    challenge.answers.push({ problemIndex, answer, correct });
+    challenge.currentProblemIndex = problemIndex + 1;
+    
+    const isComplete = challenge.currentProblemIndex >= DAILY_CHALLENGE_PROBLEMS_COUNT;
+
+    // Update challenge state
+    await redis.set(`daily_challenge:${challengeId}`, JSON.stringify(challenge), {
+      expiration: new Date(Date.now() + 300000), // 5 minutes expiry
+    });
+
+    res.json({
+      type: 'daily-challenge-answer',
+      correct,
+      problemIndex,
+      totalCorrect: challenge.correctAnswers,
+      isComplete,
+    });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Failed to process answer' });
+  }
+});
+
+router.post<
+  { postId: string },
+  DailyChallengeEndResponse | { status: string; message: string },
+  { challengeId: string }
+>('/api/daily-challenge/end', async (req, res): Promise<void> => {
+  const { postId } = context;
+  const { challengeId } = req.body;
+
+  if (!postId || !challengeId) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Missing required fields',
+    });
+    return;
+  }
+
+  try {
+    const challengeData = await redis.get(`daily_challenge:${challengeId}`);
+    
+    if (!challengeData) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Challenge not found',
+      });
+      return;
+    }
+
+    const challenge = JSON.parse(challengeData);
+    const completionTime = Date.now() - challenge.startTime;
+    const score = challenge.correctAnswers;
+    const today = getTodayDateString();
+    const username = await reddit.getCurrentUsername();
+
+    if (!username) {
+      res.status(400).json({
+        status: 'error',
+        message: 'User authentication required',
+      });
+      return;
+    }
+
+    // Clean up challenge state
+    await redis.del(`daily_challenge:${challengeId}`);
+
+    // Save user's attempt (prevent multiple attempts)
+    const attemptKey = `daily_challenge_attempt:${postId}:${today}:${username}`;
+    await redis.set(attemptKey, JSON.stringify({
+      completionTime,
+      score,
+      date: today,
+    }), {
+      expiration: new Date(Date.now() + 86400000 * 2), // 2 days expiry
+    });
+
+    // Add to daily leaderboard (only if score > 0)
+    let rank: number | null = null;
+    if (username && score > 0) {
+      const leaderboardKey = `daily_leaderboard:${postId}:${today}`;
+      
+      // Use completion time as tiebreaker (faster is better)
+      // Score is primary, completion time is secondary (lower is better)
+      // Composite score: score * 1000000 - completionTime (so higher score wins, faster time wins ties)
+      const compositeScore = score * 1000000 - completionTime;
+      
+      await redis.zAdd(leaderboardKey, { 
+        member: JSON.stringify({ username, score, completionTime }), 
+        score: compositeScore 
+      });
+      
+      // Set expiry for leaderboard (keep for 7 days)
+      await redis.expire(leaderboardKey, 86400 * 7);
+      
+      // Get user's rank
+      const allMembers = await redis.zRange(leaderboardKey, 0, -1, {
+        by: 'rank',
+        reverse: true,
+      });
+      
+      const userIndex = allMembers.findIndex(m => {
+        try {
+          const data = JSON.parse(m.member);
+          return data.username === username;
+        } catch {
+          return false;
+        }
+      });
+      
+      if (userIndex >= 0) {
+        rank = userIndex + 1;
+      }
+    }
+
+    res.json({
+      type: 'daily-challenge-end',
+      completionTime,
+      score,
+      rank,
+    });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: 'Failed to end daily challenge' });
+  }
+});
+
+router.get<{ postId: string }, DailyChallengeLeaderboardResponse | { status: string; message: string }>(
+  '/api/daily-challenge/leaderboard',
+  async (req, res): Promise<void> => {
+    const { postId } = context;
+
+    if (!postId) {
+      res.status(400).json({
+        status: 'error',
+        message: 'postId is required',
+      });
+      return;
+    }
+
+    try {
+      const date = (req.query.date as string) || getTodayDateString();
+      const currentUsername = await reddit.getCurrentUsername();
+      const leaderboardKey = `daily_leaderboard:${postId}:${date}`;
+
+      // Get leaderboard entries
+      const members = await redis.zRange(leaderboardKey, 0, 49, { // Top 50
+        by: 'rank',
+        reverse: true,
+      });
+
+      // Helper: default avatar from username
+      const defaultAvatarFromUsername = (name: string) => {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+          hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+        }
+        const idx = (hash % 8) + 1;
+        return `https://www.redditstatic.com/avatars/defaults/v2/avatar_default_${idx}.png`;
+      };
+
+      const entries: DailyChallengeLeaderboardEntry[] = [];
+      
+      for (let i = 0; i < members.length; i++) {
+        const m = members[i];
+        if (!m) continue;
+        
+        try {
+          const data = JSON.parse(m.member);
+          const { username, score, completionTime } = data;
+          
+          // Try to get user avatar
+          let avatarUrl: string | undefined;
+          try {
+            if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+              const url = await (reddit as any).getSnoovatarUrl(username);
+              if (typeof url === 'string' && url.length > 0) {
+                avatarUrl = url;
+              }
+            }
+            if (!avatarUrl) {
+              const user = await reddit.getUserByUsername(username);
+              avatarUrl =
+                (user as any)?.snoovatar_img ||
+                (user as any)?.iconImg ||
+                (user as any)?.icon_img ||
+                undefined;
+            }
+          } catch (err) {
+            // ignore avatar fetch failures
+          }
+
+          if (!avatarUrl) {
+            avatarUrl = defaultAvatarFromUsername(username);
+          }
+
+          entries.push({
+            username,
+            score,
+            completionTime,
+            rank: i + 1,
+            avatarUrl,
+          });
+        } catch (err) {
+          // Skip invalid entries
+          continue;
+        }
+      }
+
+      // Find current user's data
+      let userRank: number | null = null;
+      let userScore: number | null = null;
+      let userTime: number | null = null;
+      let userUsername: string | null = null;
+      let userAvatarUrl: string | null | undefined = null;
+
+      if (currentUsername) {
+        userUsername = currentUsername;
+        
+        // Check if user has attempted this challenge
+        const attemptKey = `daily_challenge_attempt:${postId}:${date}:${currentUsername}`;
+        const attemptData = await redis.get(attemptKey);
+        
+        if (attemptData) {
+          const attempt = JSON.parse(attemptData);
+          userScore = attempt.score;
+          userTime = attempt.completionTime;
+          
+          // Find rank in entries
+          const userEntry = entries.find(e => e.username === currentUsername);
+          if (userEntry) {
+            userRank = userEntry.rank;
+          }
+        }
+
+        // Get user avatar
+        try {
+          if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+            const url = await (reddit as any).getSnoovatarUrl(currentUsername);
+            if (typeof url === 'string' && url.length > 0) {
+              userAvatarUrl = url;
+            }
+          }
+          if (!userAvatarUrl) {
+            const user = await reddit.getUserByUsername(currentUsername);
+            userAvatarUrl =
+              (user as any)?.snoovatar_img ||
+              (user as any)?.iconImg ||
+              (user as any)?.icon_img ||
+              undefined;
+          }
+        } catch (err) {
+          // ignore failures
+        }
+
+        if (!userAvatarUrl) {
+          userAvatarUrl = defaultAvatarFromUsername(currentUsername);
+        }
+      }
+
+      res.json({
+        type: 'daily-challenge-leaderboard',
+        date,
+        entries,
+        userRank,
+        userScore,
+        userTime,
+        userUsername,
+        userAvatarUrl,
+      });
+    } catch (error) {
+      res.status(400).json({ status: 'error', message: 'Failed to fetch daily challenge leaderboard' });
     }
   }
 );

@@ -79,3 +79,63 @@ export type GameStatsResponse = {
   type: 'game-stats';
   totalPlays: number;
 };
+
+// User-related responses
+export type UserStreakResponse = {
+  currentStreak: number;
+  lastPlayDate: string | null; // ISO date string or null if none
+};
+
+// Daily Challenge Types
+export type DailyChallengeInfo = {
+  date: string; // YYYY-MM-DD format
+  problems: MathProblem[];
+  hasAttempted: boolean;
+  userTime?: number; // completion time in milliseconds, if completed
+  userScore?: number; // score achieved, if completed
+};
+
+export type DailyChallengeInitResponse = {
+  type: 'daily-challenge-init';
+  challenge: DailyChallengeInfo;
+};
+
+export type DailyChallengeStartResponse = {
+  type: 'daily-challenge-start';
+  challengeId: string;
+  problems: MathProblem[];
+};
+
+export type DailyChallengeAnswerResponse = {
+  type: 'daily-challenge-answer';
+  correct: boolean;
+  problemIndex: number;
+  totalCorrect: number;
+  isComplete: boolean;
+};
+
+export type DailyChallengeEndResponse = {
+  type: 'daily-challenge-end';
+  completionTime: number; // in milliseconds
+  score: number; // number of correct answers
+  rank: number | null; // user's rank on daily leaderboard
+};
+
+export type DailyChallengeLeaderboardEntry = {
+  username: string;
+  score: number;
+  completionTime: number; // in milliseconds
+  rank: number;
+  avatarUrl?: string;
+};
+
+export type DailyChallengeLeaderboardResponse = {
+  type: 'daily-challenge-leaderboard';
+  date: string;
+  entries: DailyChallengeLeaderboardEntry[];
+  userRank: number | null;
+  userScore: number | null;
+  userTime: number | null;
+  userUsername: string | null;
+  userAvatarUrl?: string | null;
+};

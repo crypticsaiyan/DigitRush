@@ -4,6 +4,7 @@ import type { LeaderboardResponse, GameStatsResponse } from '../../shared/types/
 
 interface StartPageProps {
   onStart: () => void;
+  onDailyChallenge?: () => void;
 }
 
 // Helper function to fetch total plays
@@ -18,7 +19,7 @@ const fetchTotalPlays = async (): Promise<number | null> => {
   }
 };
 
-export const StartPage = ({ onStart }: StartPageProps) => {
+export const StartPage = ({ onStart, onDailyChallenge }: StartPageProps) => {
   const [showHow, setShowHow] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [topScore, setTopScore] = useState<number | null>(null);
@@ -151,10 +152,19 @@ export const StartPage = ({ onStart }: StartPageProps) => {
               <div className="mt-6 flex flex-col items-center md:items-start gap-3">
                 <button
                   onClick={onStart}
-                  className="font-heading inline-flex items-center gap-3 bg-[#00bf63] hover:bg-[#00a855] text-[#06282A] font-bold px-5 py-3 rounded-lg text-sm transition-transform transform hover:scale-105 shadow-md animate-heartbeat"
+                  className="font-heading inline-flex items-center gap-3 bg-[#00a855] text-[#06282A] font-bold px-5 py-3 rounded-lg text-sm transition-transform transform hover:scale-105 shadow-md animate-heartbeat"
                 >
                   <span>Start Playing</span>
                 </button>
+
+                {onDailyChallenge && (
+                  <button
+                    onClick={onDailyChallenge}
+                    className="font-heading inline-flex items-center gap-3 bg-[#FFD166] hover:bg-[#ffb800] text-black font-bold px-5 py-3 rounded-lg text-sm transition-transform transform hover:scale-105 shadow-md"
+                  >
+                    <span>Daily Challenge</span>
+                  </button>
+                )}
 
                 <button
                   onClick={() => setShowHow(true)}
