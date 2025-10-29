@@ -74,3 +74,8 @@ export type ShareInfoResponse = {
   postUrl: string;
   subredditName: string;
 };
+
+export type GameStatsResponse = {
+  type: 'game-stats';
+  totalPlays: number;
+};

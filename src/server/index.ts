@@ -11,6 +11,7 @@ import {
   LeaderboardResponse,
   LeaderboardEntry,
   ShareInfoResponse,
+  GameStatsResponse,
 } from '../shared/types/api';
 import { GAME_DURATION_MS } from '../shared/constants';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
@@ -265,6 +266,9 @@ router.post<{ postId: string }, GameStartResponse | { status: string; message: s
         currentProblem: firstProblem,
       });
 
+      // Increment total game plays counter
+      await redis.incrBy(`total_plays:${postId}`, 1);
+
       res.json({
         type: 'game-start',
         problem: firstProblem,
@@ -471,6 +475,34 @@ router.get<{ postId: string }, ShareInfoResponse | { status: string; message: st
       });
     } catch (error) {
       res.status(400).json({ status: 'error', message: 'Failed to get share info' });
+    }
+  }
+);
+
+// Game stats endpoint
+router.get<{ postId: string }, GameStatsResponse | { status: string; message: string }>(
+  '/api/game/stats',
+  async (_req, res): Promise<void> => {
+    const { postId } = context;
+
+    if (!postId) {
+      res.status(400).json({
+        status: 'error',
+        message: 'postId is required',
+      });
+      return;
+    }
+
+    try {
+      const totalPlaysStr = await redis.get(`total_plays:${postId}`);
+      const totalPlays = totalPlaysStr ? parseInt(totalPlaysStr) : 0;
+
+      res.json({
+        type: 'game-stats',
+        totalPlays,
+      });
+    } catch (error) {
+      res.status(400).json({ status: 'error', message: 'Failed to fetch game stats' });
     }
   }
 );

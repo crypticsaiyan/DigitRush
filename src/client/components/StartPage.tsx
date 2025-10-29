@@ -1,16 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Leaderboard } from './Leaderboard';
-import type { LeaderboardResponse } from '../../shared/types/api';
+import type { LeaderboardResponse, GameStatsResponse } from '../../shared/types/api';
 
 interface StartPageProps {
   onStart: () => void;
 }
+
+// Helper function to fetch total plays
+const fetchTotalPlays = async (): Promise<number | null> => {
+  try {
+    const res = await fetch('/api/game/stats');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data: GameStatsResponse = await res.json();
+    return data.totalPlays;
+  } catch (err) {
+    return null;
+  }
+};
 
 export const StartPage = ({ onStart }: StartPageProps) => {
   const [showHow, setShowHow] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [topScore, setTopScore] = useState<number | null>(null);
   const [loadingTopScore, setLoadingTopScore] = useState<boolean>(false);
+  const [totalPlays, setTotalPlays] = useState<number | null>(null);
+  const [loadingTotalPlays, setLoadingTotalPlays] = useState<boolean>(false);
 
   // Prevent background page from scrolling while modal is open
   useEffect(() => {
@@ -51,12 +65,46 @@ export const StartPage = ({ onStart }: StartPageProps) => {
     fetchTopScore();
   }, []);
 
+  // Fetch total game plays
+  useEffect(() => {
+    const loadTotalPlays = async () => {
+      setLoadingTotalPlays(true);
+      const plays = await fetchTotalPlays();
+      setTotalPlays(plays);
+      setLoadingTotalPlays(false);
+    };
+
+    loadTotalPlays();
+  }, []);
+
+  // Refresh total plays when component becomes visible (e.g., after returning from a game)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (!document.hidden) {
+        const plays = await fetchTotalPlays();
+        if (plays !== null) {
+          setTotalPlays(plays);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[#021013]">
       {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-between items-center mb-6">
+          {/* Total plays counter */}
+          <div className="text-white">
+            <div className="text-xl text-white/70">Total Plays</div>
+            <div className="text-xl font-bold">
+              {loadingTotalPlays ? '...' : (totalPlays?.toLocaleString() ?? '0')}
+            </div>
+          </div>
           {/* Compact leaderboard card so trophy doesn't float alone */}
           <button
             aria-label="Open leaderboard"

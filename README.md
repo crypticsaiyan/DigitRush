@@ -1,50 +1,67 @@
 # DigitRush
 
-**DigitRush** is an ultra-fast mental math challenge built for Reddit using the Devvit platform. Test your mathematical reflexes by solving arithmetic problems in lightning-fast rounds that push your speed and accuracy to the limit!
+**DigitRush** is a lightning-fast mental math challenge game built natively for Reddit using the Devvit platform. Race against a 60-second countdown to solve as many arithmetic problems as possible while competing on a global leaderboard with authentic Reddit users!
+
+![DigitRush Game Preview](assets/default-splash.png)
 
 ## What is DigitRush?
 
-DigitRush is an extreme-speed mental math game that runs directly within Reddit posts, challenging players to solve as many arithmetic problems as possible in just **1 second total**. This lightning-fast format creates an intense test of mathematical reflexes and instant calculation abilities.
+DigitRush is an intense 60-second mental math challenge that runs directly within Reddit posts, testing your mathematical speed and accuracy under extreme time pressure. Players race to solve as many arithmetic problems as possible while a countdown timer creates heart-pounding urgency.
 
-The game features a sophisticated React-based interface with real-time countdown timers, instant visual feedback, and seamless integration with Reddit's user system for authentic leaderboard competition.
+**Core Gameplay**: You have exactly 60 seconds to solve rapid-fire math problems covering addition, subtraction, multiplication, and division. Each correct answer earns 1 point, with no penalties for wrong answers - encouraging speed over caution. The game features real-time visual feedback, instant problem transitions, and a sophisticated scoring system that tracks both accuracy and problems-per-minute.
 
-The game presents players with rapid-fire arithmetic problems (addition, subtraction, multiplication, division) and challenges them to input correct answers before the extremely short timer runs out. Each correct answer increases your score by 1 point, and the game tracks your accuracy, problems per minute, and maintains a global leaderboard with Reddit user integration.
+**Reddit Integration**: Built natively on Reddit's Devvit platform, DigitRush seamlessly integrates with Reddit's user system for authentic competition. The global leaderboard displays real Reddit usernames and profile avatars, creating genuine social competition without requiring external accounts or downloads.
+
+**Technical Excellence**: The game features a React-based interface with server-side problem generation, anti-cheat protection, real-time countdown timers, and responsive design optimized for both mobile and desktop play. Custom fonts, animated assets, and smooth transitions create a polished gaming experience.
+
+### Game Flow
+The game consists of three main screens that create a seamless gaming experience:
+
+1. **Start Page** - Welcome screen with game introduction, total plays counter, leaderboard preview, and "How to Play" instructions
+2. **Game Play** - The intense 60-second math challenge with real-time scoring, countdown timer, and instant visual feedback
+3. **Game Results** - Comprehensive results analysis with performance metrics, social sharing, and leaderboard integration
 
 ## What Makes DigitRush Innovative?
 
-### Revolutionary Ultra-Speed Mental Math Format
-DigitRush pioneers a completely new category of mathematical gaming with its extreme 1-second total duration:
+DigitRush revolutionizes mental math gaming through its unique combination of Reddit-native integration, perfectly balanced 60-second challenge format, and sophisticated anti-cheat architecture that creates authentic competitive gameplay.
 
-- **Unprecedented Time Pressure**: Unlike traditional math games with 30-60 seconds, DigitRush's 1-second limit eliminates all thinking time and requires pure mathematical automation
-- **Reflexive Mathematics**: Success demands instant number recognition and automatic calculation responses - conscious problem-solving is impossible
-- **Cognitive Limit Testing**: Pushes players to their absolute mathematical processing limits, creating genuine achievement when even 1-2 problems are solved
-- **Addictive Micro-Sessions**: Ultra-short games enable rapid replay cycles, perfect for mobile gaming and quick mental challenges
-- **Mathematical Muscle Memory**: Develops lightning-fast number processing abilities through repeated exposure to extreme time pressure
+### Perfectly Balanced 60-Second Challenge Format
+DigitRush's 60-second duration creates the optimal mathematical gaming experience:
 
-### Reddit-Native Gaming Innovation
-- **Seamless Platform Integration**: First math game built natively for Reddit using Devvit - no external apps, downloads, or account creation required
-- **Community-Driven Competition**: Global leaderboard connects players across Reddit with real usernames, profile avatars, and authentic social engagement
-- **Instant Social Sharing**: Native mobile share API with custom challenge messages and automatic clipboard fallback for cross-platform compatibility
-- **Moderator Empowerment**: Built-in menu actions allow subreddit moderators to create game posts and manage community engagement
-- **Reddit Authentication**: Leverages Reddit's existing user system for immediate play and authentic leaderboard participation
+- **Intense Time Pressure**: Creates heart-pounding urgency that eliminates hesitation and forces rapid mental calculation
+- **Achievable Excellence**: Long enough for skilled players to demonstrate mastery (50+ problems) while remaining accessible to beginners
+- **Strategic Decision Making**: Players must balance speed vs accuracy - rushing causes mistakes, but hesitation wastes precious seconds
+- **Addictive Replay Value**: Perfect session length for "just one more game" psychology with immediate restart capability
+- **Mathematical Flow State**: Sustained 60-second focus develops rapid number processing and calculation fluency
+- **Meaningful Progression**: Substantial skill ceiling allows continuous improvement over time with clear performance metrics
 
-### Advanced Technical Architecture
-- **Server-Side Security**: All math problems, scoring, and timing handled server-side to prevent cheating and ensure fair global competition
-- **Real-Time Feedback System**: Instant visual responses with color-coded input fields and immediate answer reveals create engaging gameplay flow
-- **Grace Period Mechanics**: Sophisticated timing logic allows one final answer submission after timer expiration for fairness
-- **Anti-Cheat Protection**: Server validates all answers, timing, and game state to maintain leaderboard integrity and competitive balance
-- **Cross-Platform Excellence**: Responsive design with touch-optimized controls, keyboard shortcuts, and native mobile features
+### Revolutionary Reddit-Native Gaming Platform
+- **Zero-Friction Access**: First mental math game built natively for Reddit - no downloads, external accounts, or app installations required
+- **Authentic Social Competition**: Global leaderboard features real Reddit usernames, profile avatars, and genuine community engagement
+- **Advanced Social Sharing**: Native mobile share API with pre-formatted challenge messages and intelligent clipboard fallback for desktop users
+- **Community Integration**: Moderator menu actions enable easy game post creation and subreddit community management
+- **Seamless Authentication**: Leverages Reddit's existing user system for instant play and authentic competitive participation
+- **Cross-Subreddit Competition**: Players from different communities compete on unified global leaderboards
 
-### Psychological Gaming Innovation
-- **Extreme Difficulty as Feature**: The seemingly impossible 1-second limit creates genuine achievement and competitive bragging rights
-- **Mathematical Flow State**: Extreme time pressure eliminates overthinking and creates pure mathematical flow experiences
-- **Skill Ceiling Breakthrough**: Virtually unlimited room for improvement as players develop mathematical automation and reflexes
-- **Instant Gratification**: Ultra-short sessions provide immediate feedback and rapid improvement cycles
-- **Competitive Intensity**: The extreme difficulty makes every point meaningful and creates authentic competitive experiences
+### Sophisticated Anti-Cheat Architecture
+- **Server-Side Problem Generation**: All math problems generated server-side with unique IDs to prevent predictability and client-side manipulation
+- **Comprehensive Validation**: Server validates all answers, timing, game state, and score calculations to ensure leaderboard integrity
+- **Real-Time State Synchronization**: Client and server maintain synchronized game state throughout sessions using secure RESTful APIs
+- **Grace Period Fairness**: Sophisticated timing logic allows one final answer submission after timer expiration to prevent network lag penalties
+- **Tamper-Proof Scoring**: All scoring logic handled server-side with Redis persistence to prevent score manipulation
+- **Secure Leaderboard System**: Composite scoring with timestamp-based tie-breaking ensures fair and deterministic rankings
+
+### Advanced User Experience Design
+- **Instant Visual Feedback**: Color-coded input fields (green for correct, red for incorrect) with immediate answer reveals create engaging flow
+- **Auto-Focus Input System**: Intelligent input field focusing and text selection maximizes input speed and eliminates friction
+- **Responsive Cross-Platform Design**: Touch-optimized mobile controls with keyboard shortcuts and hover effects for desktop users
+- **Custom Asset Integration**: Specialized fonts (FFFFORWA, Medodica, EditUndo) and animated graphics create polished visual experience
+- **Loading State Management**: Smooth transitions and loading indicators prevent user confusion during network operations
+- **Accessibility Excellence**: High contrast colors, clear typography, and keyboard navigation support ensure inclusive gameplay
 
 ### Core Game Features
 
-- **Lightning-fast 1-second total game duration** - Extreme time pressure that tests mathematical reflexes and instant calculation
+- **Fast-paced 60-second game duration** - Optimal time pressure that balances speed and accuracy challenges
 - **Dynamic math problems** covering addition, subtraction, multiplication, and division with server-side generation
 - **Personal high score tracking** with automatic saving and celebration animations for new records
 - **Global leaderboard** with Reddit user integration, avatars, and medal rankings (Gold/Silver/Bronze)
@@ -59,59 +76,22 @@ DigitRush pioneers a completely new category of mathematical gaming with its ext
 - **Auto-focus input system** with keyboard-optimized controls and Enter key submission
 - **Immediate visual feedback** with animated loading states and problem transitions
 
-### Game Flow & Components
+### Technical Architecture
 
-The game consists of three main screens that create a seamless gaming experience:
-
-1. **Start Page** (`StartPage.tsx`) - Welcome screen with game introduction, leaderboard preview showing top score, "How to Play" modal with instructions, and animated trophy button for leaderboard access
-2. **Game Play** (`GamePlay.tsx`) - The intense 1-second math challenge with real-time scoring, countdown timer, progress bar, and instant visual feedback with color-coded input fields
-3. **Game Results** (`GameResults.tsx`) - Comprehensive results analysis with performance metrics, social sharing, leaderboard integration, and responsive mobile/desktop layouts
-
-### Game State Management
-
-The game uses a sophisticated state management system through the `useMathGame` hook that handles:
+**Game State Management**: The game uses a sophisticated state management system through the `useMathGame` hook that handles:
 - **Game States**: 'start' → 'playing' → 'finished' with seamless transitions
-- **Real-time Timer**: Countdown from 1 second with automatic game ending
+- **Real-time Timer**: Countdown from 60 seconds with automatic game ending
 - **Score Tracking**: Current score, high score, accuracy, and total problems attempted
 - **Problem Management**: Server-generated math problems with unique IDs and validation
 - **API Integration**: RESTful endpoints for game initialization, answer submission, and leaderboard data
 
-## What Makes DigitRush Innovative?
+**Component Architecture**:
+- **StartPage.tsx** - Welcome screen with game introduction, total plays counter, leaderboard preview, and "How to Play" modal
+- **GamePlay.tsx** - The intense 60-second math challenge with real-time scoring, countdown timer, and instant visual feedback
+- **GameResults.tsx** - Comprehensive results analysis with performance metrics, social sharing, and leaderboard integration
+- **Leaderboard.tsx** - Global rankings modal with Reddit user integration and medal system
 
-### Extreme-Speed Mental Math Challenge
-DigitRush pushes mathematical gaming to its absolute limits with a 1-second total game duration that creates the ultimate test of mathematical reflexes:
 
-- **Ultimate Time Pressure**: 1-second total game time eliminates thinking time and requires pure mathematical automation
-- **Reflexive Calculation**: Success demands instant number recognition and automatic calculation responses  
-- **Adrenaline-Fueled Gaming**: Extreme time constraints create an addictive, high-intensity gaming experience
-- **Mathematical Reflexes**: Develops lightning-fast number processing and calculation abilities through practice
-- **Instant Mastery Testing**: Only players with exceptional mathematical fluency can achieve meaningful scores
-- **Competitive Intensity**: The extreme difficulty creates genuine achievement and competitive bragging rights
-- **Unlimited Skill Ceiling**: Virtually endless room for improvement as players develop mathematical automation
-
-### Reddit-Native Gaming Platform
-- **Seamless Integration**: Runs directly within Reddit posts using Devvit - no external sites, apps, or downloads required
-- **Community Competition**: Global leaderboard connects players across Reddit with real usernames and profile avatars
-- **Instant Authentication**: Uses Reddit's built-in user system for immediate play without separate account creation
-- **Social Challenge System**: Native mobile share API with custom challenge messages and automatic clipboard fallback
-- **Moderator Tools**: Built-in menu actions for subreddit moderators to create new game posts and manage content
-
-### Advanced Game Architecture
-- **Server-Side Security**: All math problems, scoring, and timing handled server-side to prevent cheating and ensure fair competition
-- **Real-Time Feedback System**: Instant visual responses with color-coded input fields (green/red) and immediate answer reveals
-- **Extreme Pressure Mechanics**: Lightning-fast countdown with visual progress bar and critical time warnings (red under 10s)
-- **Comprehensive Analytics**: Detailed post-game statistics including accuracy percentage and problems-per-minute calculations
-- **Grace Period Logic**: Players can submit one final answer even after the timer expires for fairness
-- **Anti-Cheat Protection**: Server validates all answers, timing, and game state to maintain leaderboard integrity
-- **Redis Data Persistence**: High scores and leaderboard data automatically synchronized and persisted across all players
-
-### Technical Excellence
-- **Cross-Platform Optimization**: Responsive design works flawlessly on desktop and mobile with touch-optimized controls and layouts
-- **Type-Safe Architecture**: Full TypeScript implementation across client, server, and shared modules ensures code reliability
-- **Smart Asset Management**: Preloading system with custom fonts (FFFFORWA, Medodica, EditUndo) and animated graphics (trophy.gif)
-- **Mobile-First UX**: Native share API, keyboard shortcuts (Enter to submit), auto-focus input, and optimized mobile layouts
-- **Modular Component Design**: Clean separation between React components, Express API endpoints, and shared TypeScript types
-- **Vite Build System**: Fast development with hot reloading and optimized production builds for both client and server
 
 ## How to Play DigitRush
 
@@ -126,10 +106,10 @@ DigitRush pushes mathematical gaming to its absolute limits with a 1-second tota
    - Correct answers increase your score by 1 point each
    - Check the leaderboard and challenge friends with your results
 
-#### 2. Playing the Lightning Math Challenge
-1. **Game Initialization**: After clicking "Start Playing", the game loads your first math problem and begins the 1-second countdown immediately
+#### 2. Playing the 60-Second Math Challenge
+1. **Game Initialization**: After clicking "Start Playing", the game loads your first math problem and begins the 60-second countdown immediately
 2. **Problem Recognition**: A large math problem appears (e.g., "7 + 3 = ?") in the center of the screen
-3. **Instant Calculation**: Calculate the answer as quickly as possible - you have only 1 second total for the entire game session
+3. **Calculate and Input**: Calculate the answer and type it as quickly as possible - you have 60 seconds to solve as many problems as you can
 4. **Answer Input**: 
    - The input field is automatically focused and ready for typing
    - Type only the numerical answer (negative numbers supported with minus sign)
@@ -139,7 +119,7 @@ DigitRush pushes mathematical gaming to its absolute limits with a 1-second tota
    - ❌ **Wrong Answer**: Input field turns red, shows "❌ Wrong! Answer was [correct answer]"
 6. **Continuous Flow**: New problems appear instantly after each submission with automatic input clearing and focus
 7. **Monitor Progress**: Watch your score (top-left) and countdown timer (top-right) with color-coded progress bar
-8. **Game End**: When the 1-second timer reaches zero, the game automatically ends and transitions to results
+8. **Game End**: When the 60-second timer reaches zero, the game automatically ends and transitions to results
 
 #### 3. Viewing Your Results
 1. **Performance Summary**: See your final score prominently displayed with celebration animation if you achieved a new personal best
@@ -153,19 +133,19 @@ DigitRush pushes mathematical gaming to its absolute limits with a 1-second tota
 4. **Global Leaderboard**: View your rank among all players with Reddit usernames and profile avatars
 5. **Continue Playing**: Click "Play Again" for another lightning round or "Back to Menu" to return to the start screen
 
-### The Lightning Math Challenge Experience
-DigitRush challenges you to solve as many arithmetic problems as possible in just **1 second total**, creating an extreme test of mathematical reflexes and instant calculation abilities. This is not 1 second per problem - it's 1 second for the entire game session!
+### The 60-Second Math Challenge Experience
+DigitRush challenges you to solve as many arithmetic problems as possible in **60 seconds**, creating an engaging test of mathematical speed, accuracy, and mental agility under time pressure.
 
-#### During the Lightning Math Challenge
-1. **Instant Problem Recognition**: A math problem appears in large text (e.g., "7 + 3 = ?") - you have only 1 second total for the entire game!
-2. **Reflexive Calculation**: Calculate the answer instantly using mathematical automation - no time for conscious thinking
-3. **Lightning Input**: Type the numerical answer in the auto-focused input field and press **Enter** immediately for submission
+#### During the 60-Second Math Challenge
+1. **Problem Recognition**: A math problem appears in large text (e.g., "7 + 3 = ?") - you have 60 seconds to solve as many as possible!
+2. **Quick Calculation**: Calculate the answer efficiently, balancing speed with accuracy for maximum score
+3. **Fast Input**: Type the numerical answer in the auto-focused input field and press **Enter** for quick submission
 4. **Immediate Visual Feedback**: 
    - ✅ **Correct**: Input field turns green with "✅ Correct!" message and you advance to the next problem instantly
    - ❌ **Wrong**: Input field turns red showing "❌ Wrong! Answer was [correct answer]" then continues to next problem
 5. **Monitor Your Progress in Real-Time**: 
    - **Score** (top-left): Increases by 1 for each correct answer, displayed prominently in accent green (#86f6b1)
-   - **Timer** (top-right): Counts down from 1 second with color-coded progress bar (turns red when ≤10 seconds remain)
+   - **Timer** (top-right): Counts down from 60 seconds with color-coded progress bar (turns red when ≤10 seconds remain)
    - **Progress Bar**: Visual countdown showing remaining time percentage with smooth animations
 6. **Seamless Problem Flow**: New problems appear instantly after each submission with automatic input clearing and focus restoration
 
@@ -175,11 +155,47 @@ DigitRush challenges you to solve as many arithmetic problems as possible in jus
 - **Loading States**: Visual feedback during answer submission with "Loading..." placeholder
 - **Problem Transitions**: Smooth transitions between problems with automatic state management
 
-**Reality Check**: In 1 second, most players can only attempt 1 problem, maybe 2 if they're extremely fast. The challenge is completing even a single calculation and input before time expires.
+**Strategy**: In 60 seconds, skilled players can solve 20-40+ problems. The key is finding the right balance between speed and accuracy - rushing leads to mistakes, but hesitation wastes precious time.
+
+### Math Problem Types & Difficulty
+
+DigitRush generates four types of arithmetic problems with carefully balanced difficulty levels:
+
+#### Addition Problems
+- **Format**: `A + B = ?`
+- **Range**: Both numbers from 10-99 (two-digit numbers)
+- **Examples**: `47 + 83`, `25 + 56`, `91 + 38`
+- **Difficulty**: Moderate - requires carrying for most problems
+
+#### Subtraction Problems  
+- **Format**: `A - B = ?`
+- **Range**: A from 20-99, B from 10 to (A-1)
+- **Examples**: `74 - 29`, `85 - 47`, `63 - 18`
+- **Difficulty**: Moderate - always produces positive results, may require borrowing
+
+#### Multiplication Problems
+- **Format**: `A × B = ?`
+- **Range**: A from 2-20, B from 2-10 (excludes 1 to avoid trivial problems)
+- **Examples**: `7 × 8`, `15 × 6`, `12 × 9`
+- **Difficulty**: Moderate to Hard - tests multiplication table knowledge and larger calculations
+
+#### Division Problems
+- **Format**: `A ÷ B = ?`
+- **Range**: Divisors 2-11 (excludes 1), ensures clean division with no remainders
+- **Examples**: `84 ÷ 7`, `132 ÷ 11`, `45 ÷ 9`
+- **Difficulty**: Moderate to Hard - all problems result in whole number answers
+- **Special Logic**: Problems with divisor 11 use larger dividends (100-1000 range) for more challenging calculations
+
+#### Problem Generation Features
+- **Server-Side Generation**: All problems generated server-side to prevent predictability
+- **Unique IDs**: Each problem has a unique identifier to prevent duplicate submissions
+- **Balanced Distribution**: Equal probability of each operation type appearing
+- **No Trivial Problems**: Excludes problems with 1 as a factor to maintain challenge level
+- **Clean Results**: Division problems always result in whole numbers (no decimals or remainders)
 
 #### Game Mechanics & Rules
 - **Scoring System**: Each correct answer = +1 point (no penalties for incorrect answers, encouraging speed over caution)
-- **Time Limit**: Extreme 1-second total game duration that tests pure mathematical reflexes and automation
+- **Time Limit**: 60-second game duration that tests mathematical speed and accuracy under pressure
 - **Problem Types**: Addition, subtraction, multiplication, and division with server-generated varying difficulty levels
 - **Input System**: Accepts only numerical input with support for negative numbers (subtraction results)
 - **Grace Period**: You can submit one final answer even after the timer reaches zero for fairness
@@ -189,7 +205,7 @@ DigitRush challenges you to solve as many arithmetic problems as possible in jus
 - **Continuous Problem Flow**: New problems appear immediately after each answer submission with automatic input clearing
 - **Dynamic Problem Generation**: Server generates diverse arithmetic problems in real-time during gameplay
 - **Loading States**: Visual feedback during answer submission with disabled input and "Loading..." placeholder text
-- **Ultimate Mathematical Challenge**: Success requires developing mathematical automation - conscious thinking time is eliminated
+- **Balanced Mathematical Challenge**: Success requires developing both speed and accuracy in mental calculation
 - **Game State Management**: Seamless transitions between Start Page, GamePlay, and GameResults screens
 - **Asset Preloading**: Custom fonts and images are preloaded for smooth gameplay experience
 
@@ -220,7 +236,7 @@ The results screen intelligently adapts to your device for optimal user experien
 **Mobile Layout** (single-column, optimized order for touch):
 1. **Your Score** - Large display with celebration animation if new high score achieved
 2. **Share Score** - Native mobile share API button or clipboard fallback for challenging friends
-3. **Play Again** - Prominent animated green button with heartbeat effect for immediate replay
+3. **Play Again** - Prominent animated green button with heartbeat effect for another 60-second challenge
 4. **Leaderboard** - Button showing your current rank among all players with trophy icon
 5. **High Score** - Your personal best with gold medal icon for motivation
 6. **Performance Metrics** - Accuracy percentage and problems-per-minute calculations
@@ -248,28 +264,28 @@ The results screen intelligently adapts to your device for optimal user experien
   - Integrated share button in both mobile and desktop result layouts for maximum accessibility
 
 #### Continue Playing Options
-- **Play Again**: Prominent animated green button with heartbeat CSS animation to immediately start another lightning math challenge
+- **Play Again**: Prominent animated green button with heartbeat CSS animation to immediately start another 60-second math challenge
 - **Back to Menu**: Return to the start screen to view leaderboard, read instructions, or access other game features
 - **Share Score**: Challenge friends and community members with your results using native sharing or clipboard copy
 
-### Understanding the Lightning Challenge
+### Understanding the 60-Second Challenge
 
-The 1-second format creates the ultimate test of mathematical reflexes and cognitive automation:
+The 60-second format creates an engaging test of mathematical speed and accuracy:
 
-- **Develop Mathematical Automation**: Regular practice builds instant number recognition and reflexive calculation abilities
-- **Experience Extreme Gaming**: The seemingly impossible time pressure creates an addictive, high-intensity gaming experience
-- **Build Mathematical Reflexes**: Success requires developing automatic mathematical responses that bypass conscious thought
-- **Test Pure Mathematical Skill**: Eliminates strategy and thinking time - only mathematical mastery and automation matter
+- **Develop Mathematical Fluency**: Regular practice builds faster mental calculation and number recognition abilities
+- **Experience Engaging Gaming**: The balanced time pressure creates an addictive, challenging gaming experience
+- **Build Mathematical Speed**: Success requires developing faster calculation skills while maintaining accuracy
+- **Test Mathematical Skill**: Balances speed and accuracy - both quick thinking and careful calculation matter
 
-#### Score Expectations & Progression (1-Second Lightning Mode)
-- **First Attempts**: 0 points - Most players cannot even input an answer in 1 second on their first try
-- **Learning the Interface**: 0-1 points as players learn to quickly recognize problems and use keyboard shortcuts
-- **Basic Competency**: 1-2 points for players who can solve one simple problem very quickly
-- **Skilled Players**: 2-4 points for those with exceptional speed and simple math automation
-- **Expert Level**: 4-6 points for players with lightning-fast reflexes and instant number recognition
-- **Master Level**: 6+ points - extremely rare, requires perfect mathematical automation and interface mastery
+#### Score Expectations & Progression (60-Second Challenge)
+- **First Attempts**: 5-15 points - New players learning the interface and getting comfortable with the time pressure
+- **Learning Phase**: 10-20 points as players develop rhythm and learn to balance speed with accuracy
+- **Basic Competency**: 15-25 points for players who can maintain steady problem-solving pace
+- **Skilled Players**: 25-35 points for those with good mental math skills and efficient input techniques
+- **Expert Level**: 35-50 points for players with excellent mathematical fluency and speed
+- **Master Level**: 50+ points - exceptional performance requiring both speed and near-perfect accuracy
 
-**Note**: The 1-second format is intentionally extreme. Most players will score 0-2 points, making even small improvements feel significant and rewarding.
+**Note**: The 60-second format allows for meaningful progression and skill development, with most players able to see improvement over time.
 
 ### User Interface & Controls
 
@@ -301,17 +317,17 @@ The 1-second format creates the ultimate test of mathematical reflexes and cogni
 - **Cross-Platform**: Consistent experience across all devices and screen sizes
 - **Accessibility**: High contrast colors, clear fonts, and keyboard navigation support
 
-### Pro Tips for Lightning Success
-- **Master Basic Mathematical Facts**: Memorize addition/subtraction to 20 and multiplication tables until they become completely automatic
-- **Use Keyboard Shortcuts**: Press **Enter** to submit answers instantly - every millisecond counts in the 1-second challenge
-- **Embrace the Extreme Pressure**: Accept that 1 second seems impossible - focus on building mathematical reflexes over time through practice
-- **Develop Pattern Recognition**: Train your brain to recognize common number combinations and calculation patterns instantly
-- **Build Number Sense**: Practice until calculations become automatic and unconscious rather than deliberate thinking
-- **Leverage Auto-Focus**: The input field automatically focuses and selects - be ready to type the instant you see the problem
-- **Prioritize Accuracy Over Speed**: In 1 second, you might only solve 1-2 problems - make every answer count
-- **Practice Consistently**: Regular practice sessions build the mathematical automation and muscle memory needed for success
-- **Stay Relaxed Under Pressure**: Tension slows reflexes - stay loose and let your mathematical training take over
-- **Build Skills Gradually**: Start with mental math practice in longer sessions, then work down to lightning-speed challenges
+### Pro Tips for 60-Second Success
+- **Master Basic Mathematical Facts**: Memorize addition/subtraction to 20 and multiplication tables for faster calculation
+- **Use Keyboard Shortcuts**: Press **Enter** to submit answers instantly - it's faster than clicking the button
+- **Find Your Rhythm**: Develop a steady pace that balances speed with accuracy for maximum score
+- **Develop Pattern Recognition**: Train your brain to recognize common number combinations and calculation shortcuts
+- **Build Mental Math Skills**: Practice mental calculation techniques to solve problems faster
+- **Leverage Auto-Focus**: The input field automatically focuses and selects - be ready to type immediately
+- **Balance Speed and Accuracy**: Don't rush so much that you make careless mistakes, but don't hesitate too long
+- **Practice Consistently**: Regular play builds mathematical fluency and familiarity with the interface
+- **Stay Calm Under Pressure**: Maintain focus and composure as the timer counts down
+- **Learn from Mistakes**: Pay attention to the correct answers when you get problems wrong
 
 ## Development
 
@@ -340,7 +356,7 @@ npm run dev
   - `vite.config.ts` — Server build configuration
 - `src/shared/` — Shared TypeScript types and constants
   - `types/api.ts` — Game responses, leaderboard entries, math problems, share info
-  - `constants.ts` — Game configuration (GAME_DURATION_SECONDS: 1, LOW_TIME_THRESHOLD: 10)
+  - `constants.ts` — Game configuration (GAME_DURATION_SECONDS: 60, LOW_TIME_THRESHOLD: 10)
 
 ### Key Components Architecture
 
@@ -375,20 +391,19 @@ The game's duration can be easily adjusted for different challenge levels:
 
 ```typescript
 // src/shared/constants.ts
-export const GAME_DURATION_SECONDS = 1;    // Current: Lightning Mode (extreme difficulty)
+export const GAME_DURATION_SECONDS = 60;   // Current: 60-second challenge mode
 export const LOW_TIME_THRESHOLD = 10;      // Warning threshold (when progress bar turns red)
 ```
 
 **Recommended Settings:**
-- **Lightning Mode**: 1 second (current) - Ultimate mathematical reflex challenge
-- **Blitz Mode**: 5 seconds - Extremely fast-paced for advanced players
-- **Speed Mode**: 15 seconds - Intense pressure for skilled players
-- **Quick Mode**: 30 seconds - Fast-paced rounds for regular play
-- **Standard Mode**: 60 seconds - Balanced challenge for most players
-- **Extended Mode**: 120 seconds - More relaxed pace for skill development
-- **Learning Mode**: 180+ seconds - For practice and building confidence
+- **Lightning Mode**: 15 seconds - Extremely fast-paced for advanced players
+- **Speed Mode**: 30 seconds - Intense pressure for skilled players  
+- **Standard Mode**: 60 seconds (current) - Balanced challenge for most players
+- **Extended Mode**: 90 seconds - More relaxed pace for skill development
+- **Learning Mode**: 120+ seconds - For practice and building confidence
+- **Marathon Mode**: 180+ seconds - Extended sessions for endurance challenges
 
-**Note**: The LOW_TIME_THRESHOLD setting controls when the progress bar turns red to indicate critical time remaining. With the current 1-second duration, the bar is red from the start due to the extreme time pressure.
+**Note**: The LOW_TIME_THRESHOLD setting controls when the progress bar turns red to indicate critical time remaining. With the current 60-second duration, the bar turns red when 10 seconds or less remain.
 
 #### Other Configuration
 - **Asset Management**: Custom fonts (FFFFORWA, Medodica, EditUndo) and images in `src/client/public/`
