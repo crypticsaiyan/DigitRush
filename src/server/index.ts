@@ -421,8 +421,17 @@ router.post<
 
         // If no existing score or this score is higher, update the sorted set
         if (existingScore == null || finalScore > existingScore) {
-          await redis.zAdd(leaderboardSetKey, { member: username, score: finalScore });
-        } else {
+          // Use a composite score that includes a tiny timestamp-based fraction to handle ties.
+          // Higher integer scores still dominate. For equal integer scores, earlier players
+          // should rank above later players. We add a small fraction (EPSILON) derived from
+          // an inverted timestamp so that earlier timestamps produce a slightly larger fraction.
+          const EPSILON = 1e-6; // small fraction added to the integer score for tie-breaking
+          const timestamp = Date.now();
+          const maxTimestamp = 8640000000000000; // large constant to normalize timestamps
+          const timestampFraction = (maxTimestamp - timestamp) / maxTimestamp; // earlier => closer to 1
+          const compositeScore = finalScore + timestampFraction * EPSILON;
+
+          await redis.zAdd(leaderboardSetKey, { member: username, score: compositeScore });
         }
       } catch (err) {}
     }
@@ -487,9 +496,6 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
       const offset = Number.parseInt((req.query.offset as string) || '0', 10) || 0;
       const limit = Math.min(Number.parseInt((req.query.limit as string) || '10', 10) || 10, 100);
 
-      // Get leaderboard entries for this post (paged)
-      const entries: LeaderboardEntry[] = [];
-
       // Use sorted set to store leaderboard
       const leaderboardSetKey = `leaderboard_set:${postId}`;
 
@@ -509,54 +515,16 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
         return `https://www.redditstatic.com/avatars/defaults/v2/avatar_default_${idx}.png`;
       };
 
-      // Parse the members - member is username, score is the sort value
-      for (const member of members) {
-        const username = member.member;
-        const score = member.score;
-
-        // Try to get user avatar
-        let avatarUrl: string | undefined;
-        try {
-          // Prefer snoovatar via dedicated API when available
-          // Call via the reddit object to preserve 'this' binding used internally
-          if (typeof (reddit as any).getSnoovatarUrl === 'function') {
-            const url = await (reddit as any).getSnoovatarUrl(username);
-            if (typeof url === 'string' && url.length > 0) {
-              avatarUrl = url;
-            }
-          }
-
-          if (!avatarUrl) {
-            const user = await reddit.getUserByUsername(username);
-            // Reddit user object might have different property names for avatar
-            avatarUrl =
-              (user as any)?.snoovatar_img ||
-              (user as any)?.iconImg ||
-              (user as any)?.icon_img ||
-              undefined;
-          }
-        } catch (err) {}
-
-        // Final fallback to redditstatic default if still missing
-        if (!avatarUrl) {
-          avatarUrl = defaultAvatarFromUsername(username);
-        }
-
-        entries.push({
-          username,
-          score,
-          rank: 0, // Will be set after sorting
-          avatarUrl,
-        });
-      }
-
       // Convert members from redis shape ({ member, score }) to LeaderboardEntry and set ranks
-      const pagedEntries: LeaderboardEntry[] = [];
+      // Build paged entries but keep original order index so we can break ties deterministically.
+      const tempEntries: Array<{ entry: LeaderboardEntry; originalIndex: number }> = [];
       for (let i = 0; i < members.length; i++) {
         const m = members[i];
         if (!m) continue;
         const username = m.member;
-        const score = m.score;
+        const compositeScore = m.score;
+        // Extract the integer score from the composite score (remove the timestamp fraction)
+        const score = Math.floor(compositeScore);
 
         // Try to get user avatar (best-effort)
         let avatarUrl: string | undefined;
@@ -583,13 +551,24 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
           avatarUrl = defaultAvatarFromUsername(username);
         }
 
-        pagedEntries.push({
-          username,
-          score,
-          rank: offset + i + 1,
-          avatarUrl,
+        tempEntries.push({
+          entry: {
+            username,
+            score,
+            rank: offset + i + 1,
+            avatarUrl,
+          },
+          originalIndex: offset + i,
         });
       }
+
+      // Ensure deterministic ordering for ties: sort by score desc, then by originalIndex asc
+      tempEntries.sort((a, b) => {
+        if (b.entry.score !== a.entry.score) return b.entry.score - a.entry.score;
+        return a.originalIndex - b.originalIndex; // earlier (smaller index) stays above
+      });
+
+      const pagedEntries: LeaderboardEntry[] = tempEntries.map((t) => t.entry);
 
       // Find current user's rank and score by fetching the full sorted set (fallback)
       // NOTE: if the leaderboard grows huge, replace this with a proper zRank/zRevRank
@@ -610,7 +589,8 @@ router.get<{ postId: string }, LeaderboardResponse | { status: string; message: 
             const found = allMembers[idx];
             if (found) {
               userRank = idx + 1;
-              userScore = found.score;
+              // Extract the integer score from the composite score
+              userScore = Math.floor(found.score);
               // avatar not provided by redis; will attempt reddit lookup below if needed
             }
           }
