@@ -8,6 +8,7 @@ interface DailyChallengeResultsProps {
 
 export const DailyChallengeResults = ({ challenge }: DailyChallengeResultsProps) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardRefreshTrigger, setLeaderboardRefreshTrigger] = useState(1); // Start with 1 to trigger initial load
 
   // Prevent background page from scrolling while modal is open
   useEffect(() => {
@@ -50,7 +51,10 @@ export const DailyChallengeResults = ({ challenge }: DailyChallengeResultsProps)
         <section className="relative bg-[#06282a] border border-[#122e2a] rounded-2xl p-6 sm:p-8 shadow-lg sm:flex sm:flex-col sm:h-full">
           {/* Leaderboard icon button */}
           <button
-            onClick={() => setShowLeaderboard(true)}
+            onClick={() => {
+              setLeaderboardRefreshTrigger(prev => prev + 1);
+              setShowLeaderboard(true);
+            }}
             className="absolute top-4 right-4 p-0 hover:scale-105 transition-transform focus:outline-none hidden sm:block"
           >
             <img src="/images/trophy.gif" alt="Trophy" className="w-8 h-8 sm:w-10 sm:h-10" />
@@ -216,7 +220,10 @@ export const DailyChallengeResults = ({ challenge }: DailyChallengeResultsProps)
               className="relative z-10 max-w-3xl w-full text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <DailyChallengeLeaderboard onClose={() => setShowLeaderboard(false)} />
+              <DailyChallengeLeaderboard 
+                onClose={() => setShowLeaderboard(false)} 
+                refreshTrigger={leaderboardRefreshTrigger}
+              />
             </div>
           </div>
         )}

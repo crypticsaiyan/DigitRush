@@ -6,9 +6,10 @@ import type {
 
 interface DailyChallengeLeaderboardProps {
   onClose?: () => void;
+  refreshTrigger?: number; // Optional prop to trigger refresh
 }
 
-export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboardProps) => {
+export const DailyChallengeLeaderboard = ({ onClose, refreshTrigger }: DailyChallengeLeaderboardProps) => {
   const [entries, setEntries] = useState<DailyChallengeLeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [userScore, setUserScore] = useState<number | null>(null);
@@ -39,35 +40,46 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
     });
   };
 
+  const fetchLeaderboard = async () => {
+    setLoading(true);
+    try {
+      // Get today's date in client's timezone
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const todayDate = `${year}-${month}-${day}`;
+
+      console.log('[CLIENT] Fetching daily leaderboard for date:', todayDate);
+      const res = await fetch(`/api/daily-challenge/leaderboard?date=${todayDate}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: DailyChallengeLeaderboardResponse = await res.json();
+      
+      console.log('[CLIENT] Daily leaderboard response:', data);
+
+      setEntries(data.entries || []);
+      setUserRank(data.userRank ?? null);
+      setUserScore(data.userScore ?? null);
+      setUserTime(data.userTime ?? null);
+      setUserUsername(data.userUsername ?? null);
+      setUserAvatarUrl(data.userAvatarUrl ?? null);
+      setDate(data.date);
+    } catch (err) {
+      console.error('Failed to fetch daily challenge leaderboard:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        // Get today's date in client's timezone
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayDate = `${year}-${month}-${day}`;
-
-        const res = await fetch(`/api/daily-challenge/leaderboard?date=${todayDate}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: DailyChallengeLeaderboardResponse = await res.json();
-
-        setEntries(data.entries || []);
-        setUserRank(data.userRank ?? null);
-        setUserScore(data.userScore ?? null);
-        setUserTime(data.userTime ?? null);
-        setUserUsername(data.userUsername ?? null);
-        setUserAvatarUrl(data.userAvatarUrl ?? null);
-        setDate(data.date);
-      } catch (err) {
-        console.error('Failed to fetch daily challenge leaderboard:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchLeaderboard();
+  }, [refreshTrigger]); // Now depends on refreshTrigger
+
+  // Also fetch when component mounts (in case refreshTrigger is 0)
+  useEffect(() => {
+    if (refreshTrigger === undefined) {
+      fetchLeaderboard();
+    }
   }, []);
 
   return (
@@ -85,23 +97,41 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
               <p className="text-lg text-gray-300">{date ? formatDate(date) : 'Today'}</p>
             </div>
           </div>
-          {onClose && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
-              aria-label="Close leaderboard"
-              className="rounded-full p-1.5 sm:p-2 md:p-2 lg:p-2 bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+              onClick={fetchLeaderboard}
+              disabled={loading}
+              aria-label="Refresh leaderboard"
+              className="rounded-full p-1.5 sm:p-2 md:p-2 lg:p-2 bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
-                className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-5 lg:h-5 text-white"
+                className={`w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-5 lg:h-5 text-white ${loading ? 'animate-spin' : ''}`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2.5}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-          )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                aria-label="Close leaderboard"
+                className="rounded-full p-1.5 sm:p-2 md:p-2 lg:p-2 bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-5 lg:h-5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -117,7 +147,7 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
       ) : entries && entries.length > 0 ? (
         <>
           {/* Fixed Current User Stats */}
-          {userRank && userScore !== null && userTime !== null && (
+          {userScore !== null && userTime !== null && (
             <div className="px-4 sm:px-6 md:px-8 pb-4 flex-shrink-0">
               <div className="bg-gradient-to-br from-[#062d2e] to-[#0a3a3b] border-2 border-[#16a085] rounded-xl p-5 shadow-md">
                 <div className="flex items-center justify-between">
@@ -126,7 +156,7 @@ export const DailyChallengeLeaderboard = ({ onClose }: DailyChallengeLeaderboard
                       Your Ranking
                     </p>
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl font-bold text-[#86f6b1]">#{userRank}</span>
+                      <span className="text-3xl font-bold text-[#86f6b1]">#{userRank || 'N/A'}</span>
                       <div className="h-8 w-px bg-[#16a085]"></div>
                       <span className="text-2xl font-bold text-white">{userScore}/5</span>
                       <div className="h-8 w-px bg-[#16a085]"></div>

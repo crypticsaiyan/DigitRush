@@ -111,6 +111,7 @@ export const useDailyChallenge = () => {
       
       if (data.isComplete) {
         // Challenge completed, end it
+        console.log('[CLIENT] Challenge completed, calling endChallenge');
         await endChallenge();
       } else {
         // Move to next problem
@@ -125,23 +126,29 @@ export const useDailyChallenge = () => {
   const endChallenge = useCallback(async () => {
     if (!challengeId || !startTime) return;
 
+    console.log('[CLIENT] endChallenge called with challengeId:', challengeId);
+
     try {
+      const todayDate = getTodayDateString();
       const res = await fetch('/api/daily-challenge/end', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ challengeId }),
+        body: JSON.stringify({ challengeId, date: todayDate }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: DailyChallengeEndResponse = await res.json();
       
-  setCompletionTime(data.completionTime);
-  setFinalScore(data.score);
-  setRank(data.rank);
-  // Return to menu so the menu shows the "Challenge Completed" summary
-  setState('menu');
+      console.log('[CLIENT] endChallenge response:', data);
       
-  // Refresh challenge info to show it's been attempted
-  await initChallenge();
+      setCompletionTime(data.completionTime);
+      setFinalScore(data.score);
+      setRank(data.rank);
+      // Return to menu so the menu shows the "Challenge Completed" summary
+      setState('menu');
+      
+      // Refresh challenge info to show it's been attempted
+      console.log('[CLIENT] Refreshing challenge info after completion');
+      await initChallenge();
     } catch (error) {
       console.error('Failed to end challenge:', error);
     }

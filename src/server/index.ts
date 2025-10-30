@@ -803,6 +803,8 @@ router.post<
     challenge.currentProblemIndex = problemIndex + 1;
     
     const isComplete = challenge.currentProblemIndex >= DAILY_CHALLENGE_PROBLEMS_COUNT;
+    
+    console.log(`[DEVVIT] Daily challenge answer - problemIndex: ${problemIndex}, correct: ${correct}, currentProblemIndex: ${challenge.currentProblemIndex}, isComplete: ${isComplete}`);
 
     // Update challenge state
     await redis.set(`daily_challenge:${challengeId}`, JSON.stringify(challenge), {
@@ -824,10 +826,10 @@ router.post<
 router.post<
   { postId: string },
   DailyChallengeEndResponse | { status: string; message: string },
-  { challengeId: string }
+  { challengeId: string; date?: string }
 >('/api/daily-challenge/end', async (req, res): Promise<void> => {
   const { postId } = context;
-  const { challengeId } = req.body;
+  const { challengeId, date } = req.body;
 
   if (!postId || !challengeId) {
     res.status(400).json({
@@ -838,9 +840,12 @@ router.post<
   }
 
   try {
+    console.log(`[DEVVIT] Daily challenge end - challengeId: ${challengeId}, postId: ${postId}`);
+    
     const challengeData = await redis.get(`daily_challenge:${challengeId}`);
     
     if (!challengeData) {
+      console.log(`[DEVVIT] Challenge data not found for challengeId: ${challengeId}`);
       res.status(400).json({
         status: 'error',
         message: 'Challenge not found',
@@ -851,10 +856,13 @@ router.post<
     const challenge = JSON.parse(challengeData);
     const completionTime = Date.now() - challenge.startTime;
     const score = challenge.correctAnswers;
-    const today = getTodayDateString();
+    const today = date || getTodayDateString(); // Use client date if provided
     const username = await reddit.getCurrentUsername();
 
+    console.log(`[DEVVIT] Challenge completion - username: ${username}, score: ${score}, completionTime: ${completionTime}, today: ${today}`);
+
     if (!username) {
+      console.log(`[DEVVIT] No username found for challenge completion`);
       res.status(400).json({
         status: 'error',
         message: 'User authentication required',
@@ -874,16 +882,19 @@ router.post<
     }), {
       expiration: new Date(Date.now() + 86400000 * 2), // 2 days expiry
     });
+    console.log(`[DEVVIT] Saved attempt data to key: ${attemptKey}`);
 
-    // Add to daily leaderboard (only if score > 0)
+    // Add to daily leaderboard (for all scores, including 0)
     let rank: number | null = null;
-    if (username && score > 0) {
+    if (username && score >= 0) {
       const leaderboardKey = `daily_leaderboard:${postId}:${today}`;
       
       // Use completion time as tiebreaker (faster is better)
       // Score is primary, completion time is secondary (lower is better)
       // Composite score: score * 1000000 - completionTime (so higher score wins, faster time wins ties)
       const compositeScore = score * 1000000 - completionTime;
+      
+      console.log(`[DEVVIT] Adding to leaderboard - key: ${leaderboardKey}, compositeScore: ${compositeScore}`);
       
       await redis.zAdd(leaderboardKey, { 
         member: JSON.stringify({ username, score, completionTime }), 
@@ -892,12 +903,15 @@ router.post<
       
       // Set expiry for leaderboard (keep for 7 days)
       await redis.expire(leaderboardKey, 86400 * 7);
+      console.log(`[DEVVIT] Added to leaderboard successfully`);
       
       // Get user's rank
       const allMembers = await redis.zRange(leaderboardKey, 0, -1, {
         by: 'rank',
         reverse: true,
       });
+      
+      console.log(`[DEVVIT] Leaderboard has ${allMembers.length} members`);
       
       const userIndex = allMembers.findIndex(m => {
         try {
@@ -910,9 +924,15 @@ router.post<
       
       if (userIndex >= 0) {
         rank = userIndex + 1;
+        console.log(`[DEVVIT] User rank: ${rank}`);
+      } else {
+        console.log(`[DEVVIT] User not found in leaderboard`);
       }
+    } else {
+      console.log(`[DEVVIT] Not adding to leaderboard - username: ${username}, score: ${score}`);
     }
 
+    console.log(`[DEVVIT] Daily challenge end response - completionTime: ${completionTime}, score: ${score}, rank: ${rank}`);
     res.json({
       type: 'daily-challenge-end',
       completionTime,
@@ -942,11 +962,15 @@ router.get<{ postId: string }, DailyChallengeLeaderboardResponse | { status: str
       const currentUsername = await reddit.getCurrentUsername();
       const leaderboardKey = `daily_leaderboard:${postId}:${date}`;
 
+      console.log(`[DEVVIT] Fetching daily leaderboard - key: ${leaderboardKey}, currentUsername: ${currentUsername}`);
+
       // Get leaderboard entries
       const members = await redis.zRange(leaderboardKey, 0, 49, { // Top 50
         by: 'rank',
         reverse: true,
       });
+
+      console.log(`[DEVVIT] Found ${members.length} members in daily leaderboard`);
 
       // Helper: default avatar from username
       const defaultAvatarFromUsername = (name: string) => {
@@ -1029,6 +1053,89 @@ router.get<{ postId: string }, DailyChallengeLeaderboardResponse | { status: str
           const userEntry = entries.find(e => e.username === currentUsername);
           if (userEntry) {
             userRank = userEntry.rank;
+            console.log(`[DEVVIT] Found user in leaderboard entries - rank: ${userRank}`);
+          } else {
+            console.log(`[DEVVIT] User not found in leaderboard entries - username: ${currentUsername}, entries count: ${entries.length}`);
+            
+            // Retroactively add user to leaderboard if they have attempt data but aren't in leaderboard
+            // This handles cases where users completed challenges before the fix to include score 0
+            if (userScore !== null && userTime !== null) {
+              console.log(`[DEVVIT] Retroactively adding user to leaderboard - score: ${userScore}, completionTime: ${userTime}`);
+              
+              const leaderboardKey = `daily_leaderboard:${postId}:${date}`;
+              const compositeScore = userScore * 1000000 - userTime;
+            
+            await redis.zAdd(leaderboardKey, { 
+              member: JSON.stringify({ username: currentUsername, score: userScore, completionTime: userTime }), 
+              score: compositeScore 
+            });
+            
+            // Set expiry for leaderboard (keep for 7 days)
+            await redis.expire(leaderboardKey, 86400 * 7);
+            
+            // Re-fetch the leaderboard to get updated entries and rank
+            const updatedMembers = await redis.zRange(leaderboardKey, 0, 49, {
+              by: 'rank',
+              reverse: true,
+            });
+            
+            console.log(`[DEVVIT] After retroactive add, leaderboard has ${updatedMembers.length} members`);
+            
+            // Find user's rank in updated leaderboard
+            const userIndex = updatedMembers.findIndex(m => {
+              try {
+                const data = JSON.parse(m.member);
+                return data.username === currentUsername;
+              } catch {
+                return false;
+              }
+            });
+            
+            if (userIndex >= 0) {
+              userRank = userIndex + 1;
+              console.log(`[DEVVIT] User rank after retroactive add: ${userRank}`);
+            }
+            
+            // Also update the entries array for the response
+            entries.length = 0; // Clear existing entries
+            for (let i = 0; i < updatedMembers.length; i++) {
+              const m = updatedMembers[i];
+              if (!m) continue;
+              
+              try {
+                const data = JSON.parse(m.member);
+                const { username, score, completionTime } = data;
+                
+                // Try to get user avatar (simplified version)
+                let avatarUrl: string | undefined;
+                try {
+                  if (typeof (reddit as any).getSnoovatarUrl === 'function') {
+                    const url = await (reddit as any).getSnoovatarUrl(username);
+                    if (typeof url === 'string' && url.length > 0) {
+                      avatarUrl = url;
+                    }
+                  }
+                } catch (err) {
+                  // ignore avatar fetch failures
+                }
+
+                if (!avatarUrl) {
+                  avatarUrl = defaultAvatarFromUsername(username);
+                }
+
+                entries.push({
+                  username,
+                  score,
+                  completionTime,
+                  rank: i + 1,
+                  avatarUrl,
+                });
+              } catch (err) {
+                // Skip invalid entries
+                continue;
+              }
+            }
+            }
           }
         }
 

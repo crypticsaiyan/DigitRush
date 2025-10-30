@@ -10,6 +10,7 @@ interface DailyChallengeMenuProps {
 
 export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProps) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardRefreshTrigger, setLeaderboardRefreshTrigger] = useState(0);
 
   // Close leaderboard modal on Escape key
   useEffect(() => {
@@ -20,6 +21,13 @@ export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProp
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [showLeaderboard]);
+
+  // Trigger leaderboard refresh when challenge info changes (indicating completion)
+  useEffect(() => {
+    if (challenge.challengeInfo?.hasAttempted) {
+      setLeaderboardRefreshTrigger(prev => prev + 1);
+    }
+  }, [challenge.challengeInfo?.hasAttempted]);
 
   // Prevent background page from scrolling while modal is open
   useEffect(() => {
@@ -99,7 +107,10 @@ export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProp
           {/* Compact leaderboard card matching StartPage */}
           <button
             aria-label="Open leaderboard"
-            onClick={() => setShowLeaderboard(true)}
+            onClick={() => {
+              setLeaderboardRefreshTrigger(prev => prev + 1);
+              setShowLeaderboard(true);
+            }}
             className="inline-flex items-center gap-3 bg-white/4 hover:from-white/8 hover:to-white/6 text-white/95 px-3 py-2 rounded-xl transition transform hover:scale-105 shadow-sm"
             title="Leaderboard"
           >
@@ -218,7 +229,10 @@ export const DailyChallengeMenu = ({ challenge, onBack }: DailyChallengeMenuProp
               className="relative z-10 max-w-3xl w-full text-white shadow-xl max-h-[calc(100vh-6rem)] overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <DailyChallengeLeaderboard onClose={() => setShowLeaderboard(false)} />
+              <DailyChallengeLeaderboard 
+                onClose={() => setShowLeaderboard(false)} 
+                refreshTrigger={leaderboardRefreshTrigger}
+              />
             </div>
           </div>
         )}
