@@ -171,7 +171,7 @@ export const DailyChallengePlay = ({ challenge }: DailyChallengePlayProps) => {
 
           {/* Problem centered */}
           <div className="mb-6 text-center">
-            <h2 className="font-mono text-4xl md:text-5xl font-bold text-gray-200">
+            <h2 className="font-mono text-5xl md:text-6xl font-bold text-gray-200">
               {challenge.currentProblem.question} = ?
             </h2>
           </div>

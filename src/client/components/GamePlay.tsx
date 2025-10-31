@@ -54,6 +54,20 @@ export const GamePlay = ({ game }: GamePlayProps) => {
     setTimeout(() => focusInput(), 50);
   }, []);
 
+  // Handle keyboard shortcuts for restart (R key anywhere)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Trigger restart with R key (works even in input)
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        game.startGame();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [game]);
+
   // Clear feedback after a short delay
   useEffect(() => {
     if (feedback.type) {
@@ -182,6 +196,19 @@ export const GamePlay = ({ game }: GamePlayProps) => {
       {/* Decorative shapes removed to ensure flat background (no gradients/blurs) */}
 
       <main className="relative z-10 w-full max-w-3xl mx-auto">
+        {/* Restart Button - Above the game box */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={game.startGame}
+            className="px-2 sm:px-4 py-2 bg-[#122e2a] hover:bg-[#1a3d38] text-[#86f6b1] hover:text-[#00bf63] font-bold text-sm sm:text-base rounded-lg transition-colors flex items-center justify-center gap-2"
+            aria-label="Restart game (Press R)"
+            title="Restart game with 0 points (Press R)"
+          >
+            {/* Icon for mobile, text for desktop */}
+            <span className="text-lg sm:text-xl px-2" aria-hidden="true">↻</span>
+          </button>
+        </div>
+
         <section className="bg-[#06282a] border border-[#122e2a] rounded-2xl p-4 sm:p-6 md:p-10 shadow-lg min-h-[60vh] flex flex-col items-center justify-center">
           {/* Top bar with score (left), toggle (center) and time+progress (right) */}
           <div className="flex items-center justify-between mb-8 gap-4 w-full">
@@ -238,7 +265,7 @@ export const GamePlay = ({ game }: GamePlayProps) => {
 
           {/* Problem centered */}
           <div className="mb-6 text-center">
-            <h2 className="font-mono text-4xl md:text-5xl font-bold text-gray-200">
+            <h2 className="font-mono text-5xl md:text-6xl font-bold text-gray-200">
               {game.currentProblem.question} = ?
             </h2>
           </div>
